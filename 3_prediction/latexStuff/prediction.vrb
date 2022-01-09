@@ -1,0 +1,29 @@
+\frametitle{Doing Imputation in Practice}
+
+  Each of the preceding approaches is available in the \textsf{R} package
+  \texttt{mice} \citep{mice}.
+
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.878, 0.918, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlcom{## Conditional Mean Substitution:}
+\hlstd{miceOut1} \hlkwb{<-} \hlkwd{mice}\hlstd{(}\hlkwc{data}   \hlstd{= missData,}
+                 \hlkwc{m}      \hlstd{=} \hlnum{1}\hlstd{,}
+                 \hlkwc{method} \hlstd{=} \hlstr{"norm.predict"}\hlstd{)}
+\hlstd{impDat1} \hlkwb{<-} \hlkwd{complete}\hlstd{(miceOut1)}
+
+\hlcom{## Stochastic Regression Imputation:}
+\hlstd{miceOut2} \hlkwb{<-} \hlkwd{mice}\hlstd{(}\hlkwc{data}   \hlstd{= missData,}
+                 \hlkwc{m}      \hlstd{=} \hlnum{1}\hlstd{,}
+                 \hlkwc{method} \hlstd{=} \hlstr{"norm.nob"}\hlstd{)}
+\hlstd{impDat2} \hlkwb{<-} \hlkwd{complete}\hlstd{(miceOut2)}
+
+\hlcom{## Proper MI:}
+\hlstd{miceOut3} \hlkwb{<-} \hlkwd{mice}\hlstd{(}\hlkwc{data}   \hlstd{= missData,}
+                 \hlkwc{m}      \hlstd{=} \hlnum{25}\hlstd{,}
+                 \hlkwc{method} \hlstd{=} \hlstr{"norm"}\hlstd{)}
+\hlstd{impList} \hlkwb{<-} \hlkwd{complete}\hlstd{(miceOut3,} \hlstr{"all"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+

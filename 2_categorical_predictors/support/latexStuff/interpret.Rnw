@@ -1,0 +1,411 @@
+%%% Title:    Categorical Code Interpretations
+%%% Author:   Kyle M. Lang
+%%% Created:  2021-03-23
+%%% Modified: 2021-03-24
+
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[natbibapa]{apacite}
+\usepackage[libertine]{newtxmath}
+\usepackage{fancybox}
+\usepackage{datetime2}
+
+\title{Interpreting the Intercept in Linear Regression Models with Categorical Predictors}
+\author{Kyle M. Lang}
+
+\begin{document}
+
+<<setup, include=FALSE>>=
+set.seed(235711)
+
+library(knitr)
+library(ggplot2)
+library(xtable)
+library(wec)
+library(emmeans)
+
+options(width = 60)
+opts_chunk$set(size      = 'footnotesize', 
+               fig.align = 'center', 
+               message   = FALSE, 
+               warning   = FALSE)
+knit_theme$set('edit-kwrite')
+
+## Define a function to automatically fix EC names:
+fixEcNames <- function(x) {
+    tmp                    <- contrasts(x)
+    colnames(contrasts(x)) <- rownames(tmp)[rowSums(tmp) > 0]
+    x
+}
+
+## Define a function to automatically change the omitted group:
+changeOmitted <- function(x) relevel(x, ref = levels(x)[nlevels(x)])
+@
+
+\maketitle
+
+In this document, I'll go through the interpretation of the estimated intercept
+in multiple linear regression models that contain categorical predictors. The
+interpretation of the intercept differs based on the nature of the variables on
+the right hand side (RHS) of the regression equation. For simple linear
+regression models, the following represent the intercept interpretations for
+some common types of predictor variables.
+
+\begin{itemize}
+\item Continuous $X$: The model-implied mean of $Y$ (i.e., the expected value
+  for $Y$, given our model) for cases with $X = 0$.
+\item Dummy-coded $X$: The model-implied mean of $Y$ for cases in the reference
+  group of $X$.
+\item Unweighted effects-coded $X$: The model-implied, unweighted mean of $Y$
+  (see below for definition of the unweighted mean)
+\item Weighted effects-coded $X$: The model-implied, weighted mean of $Y$
+  (see below for definition of the weighted mean)
+\end{itemize}
+
+When we combine different types of variables and/or codes on the RHS of a
+multiple linear regression model, the intercept is interpreted as a sort of
+``intersection'' of the interpretations for the separate variable types/codes.
+
+\begin{itemize}
+\item Dummy-coded $X_1$ and continuous $X_2$: The model-implied mean of $Y$ for
+  cases in the reference group of $X_1$ with $X_2 = 0$.
+\item Unweighted effects-coded $X_1$ and continuous $X_2$: The model-implied,
+  unweighted mean of $Y$ for cases with $X_2 = 0$.
+\item Weighted effects-coded $X_1$ and continuous $X_2$: The model-implied,
+  weighted mean of $Y$ for cases with $X_2 = 0$.
+\item Dummy-coded $X_1$ and unweighted effects-coded $X_2$: The model-implied,
+  unweighted mean of $Y$ for cases in the reference group of $X_1$.
+\item Dummy-coded $X_1$ and weighted effects-coded $X_2$: The model-implied,
+  weighted mean of $Y$ for cases in the reference group of $X_1$.
+\item Weighted effects-coded $X_1$ and unweighted effects-coded $X_2$: The
+  model-implied mean of $Y$ calculated with proportional weighting across the
+  groups of the $X_1$ factor and without weighting for the groups of the $X_2$
+  factor.
+\end{itemize}
+
+Note that the final combination (e.g., both weighted and unweighted effects
+codes) should not come up much, in practice. Usually, your data characteristics
+or your inferential goals will motivate the use of either all weighted effects
+codes or all unweighted effects codes. In the following section, I'll show a few
+examples of the combined interpretations described above.
+
+\section{Example Interpretations}
+
+We'll anchor our interpretations by refitting the same model with different
+coding schemes for the predictor variables. In our example model, we'll regress
+BMI onto a two-level factor representing biological sex and a three-level factor
+representing educational attainment level.
+\begin{align*}
+  Y_{\textit{bmi}} = 
+  \beta_0 + 
+  \beta_1X_{\textit{female}} + 
+  \beta_2X_{\textit{ed.mid}} + 
+  \beta_2X_{\textit{ed.hi}} + 
+  \varepsilon
+\end{align*}
+
+We will use the \emph{BMI} data from the \textbf{wec} package \citep{wec} to fit
+this model using different flavors of categorical coding for the \emph{sex} and
+\emph{education} factors.
+
+\subsection{Two Dummy Codes}
+
+<<cache = TRUE, echo = FALSE>>=
+data(BMI)
+
+fit0 <- lm(BMI ~ sex + education, data = BMI)
+cf0  <- coef(fit0)
+@ 
+
+When coding each factor using dummy codes, we get the following fitted
+regression equation.
+\begin{align*}
+  \hat{Y}_{\textit{bmi}} = 
+  \Sexpr{round(cf0[1], 2)} 
+  \Sexpr{round(cf0[2], 2)}X_{\textit{female}} 
+  \Sexpr{round(cf0[3], 2)}X_{\textit{ed.mid}} 
+  \Sexpr{round(cf0[4], 2)}X_{\textit{ed.hi}}
+\end{align*}
+The male group is the reference group for the \emph{sex} factor, and the lowest
+educational attainment group is the reference group for the \emph{education}
+factor. So, the intercept, $\hat{\beta}_0 = \Sexpr{round(cf0[1], 2)}$,
+represents the model-implied mean of BMI (i.e., the expected BMI given our
+fitted model) for males in the lowest educational attainment group.
+
+\subsection{Two Unweighted Effects Codes}
+
+<<cache = TRUE, echo = FALSE>>=
+data(BMI)
+
+levels(BMI$sex)       <- rev(levels(BMI$sex))
+levels(BMI$education) <- rev(levels(BMI$education))
+
+contrasts(BMI$sex)       <- contr.sum(levels(BMI$sex))
+contrasts(BMI$education) <- contr.sum(levels(BMI$education))
+
+BMI$sex       <- fixEcNames(BMI$sex)
+BMI$education <- fixEcNames(BMI$education)
+
+fit <- lm(BMI ~ sex + education, data = BMI)
+cf  <- coef(fit)
+@ 
+
+When coding each factor using unweighted effects codes, we get the following
+fitted regression equation.
+\begin{align*}
+  \hat{Y}_{\textit{bmi}} = 
+  \Sexpr{round(cf[1], 2)} +
+  \Sexpr{round(cf[2], 2)}X_{\textit{female}} + 
+  \Sexpr{round(cf[3], 2)}X_{\textit{ed.mid}} 
+  \Sexpr{round(cf[4], 2)}X_{\textit{ed.hi}}
+\end{align*}
+In this case, we don't need to worry about keeping track of the reference groups
+because the intercept represents the (unweighted) grand mean of BMI. Since both
+factors are coded with unweighted effects codes, the model-implied, unweighted
+mean of BMI is $\hat{\beta}_0 = \Sexpr{round(cf[1], 2)}$.
+
+\subsubsection{What is the Unweighted Mean?}
+For this model, the unweighted mean is defined as the simple average of the
+group-specific means of BMI. Since the \emph{sex} factor has two levels and the
+\emph{education} factor has three levels, we have $2 \times 3 = 6$
+group-specific means.
+
+<<echo = FALSE, results = "asis">>=
+mTab0 <- with(BMI, tapply(BMI, list(sex, education), mean))
+mTab1 <- xtable(mTab0, 
+                caption = "Group-Specific Means of BMI", 
+                digits  = 2,
+                label   = "mTab")
+print(mTab1, booktabs = TRUE)
+@ 
+
+Averaging these six group-specific means produces the unweighted mean of BMI
+($\overline{\textit{BMI}} = \Sexpr{round(mean(mTab0), 2)}$). We call this
+quantity the \emph{unweighted} mean because we compute it as the simple average
+of the group-specific means (i.e., we don't weight the means by their relative
+sample sizes).
+
+\subsection{Two Weighted Effects Codes}
+
+<<cache = TRUE, echo = FALSE>>=
+data(BMI)
+
+contrasts(BMI$sex)       <- contr.wec(BMI$sex, omitted = "male")
+contrasts(BMI$education) <- contr.wec(BMI$education, omitted = "lowest")
+
+fit <- lm(BMI ~ sex + education, data = BMI)
+cf  <- coef(fit)
+@ 
+
+When coding each factor using weighted effects codes, we get the following
+fitted regression equation.
+\begin{align*}
+  \hat{Y}_{\textit{bmi}} = 
+  \Sexpr{round(cf[1], 2)} 
+  \Sexpr{round(cf[2], 2)}X_{\textit{female}} + 
+  \Sexpr{round(cf[3], 2)}X_{\textit{ed.mid}} 
+  \Sexpr{round(cf[4], 2)}X_{\textit{ed.hi}}
+\end{align*}
+Again, we don't need to concern ourselves with the reference groups because the
+intercept represents the (weighted) grand mean of BMI. Since both factors are
+coded with weighted effects codes, the model-implied, weighted mean of BMI is
+$\hat{\beta}_0 = \Sexpr{round(cf[1], 2)}$.
+
+\subsubsection{What is the Weighted Mean?}
+In this case, the weighted mean is defined as the weighted average of the
+group-specific means of BMI. We weight the group-specific means shown in Table
+\ref{mTab} by weights representing the proportion of the total sample size
+associated with each group.
+
+<<echo = FALSE, results = "asis">>=
+wTab0 <- with(BMI, table(sex, education) / length(sex))
+wTab1 <- xtable(wTab0, 
+                caption = "Group-Specific Sample Weights", 
+                digits  = 3,
+                label   = "wTab")
+print(wTab1, booktabs = TRUE)
+@ 
+
+To compute the weighted mean, assume we have two matrices such as those shown in
+Tables \ref{mTab} and \ref{wTab}:
+\begin{itemize}
+\item An $L \times K$ matrix of group-specific means of $Y$, $M$, with elements
+  $m_{lk}$
+\item The corresponding matrix of group-specific sample weights, $W$, with
+  elements $w_{lk}$
+\end{itemize}
+We can then compute the weighted mean of $Y$ via the following formula:
+\begin{align*}
+  \bar{Y} = \sum_{l = 1}^L \sum_{k = 1}^K w_{lk} m_{lk}
+\end{align*}
+For our example data, the estimated weighted mean is $\overline{\textit{BMI}} =
+\Sexpr{round(sum(wTab0 * mTab0), 2)}$. When computing this quantity from the raw
+data, the weighted mean of $Y$ will equal the arithmetic average of $Y$,
+$\bar{Y} = N^{-1} \sum_{n = 1}^N y_n$.
+
+\subsection{Dummy Code and Unweighted Effects Code}
+
+<<cache = TRUE, echo = FALSE>>=
+data(BMI)
+
+levels(BMI$education)    <- rev(levels(BMI$education))
+contrasts(BMI$education) <- contr.sum(levels(BMI$education))
+BMI$education            <- fixEcNames(BMI$education)
+
+fit <- lm(BMI ~ sex + education, data = BMI)
+cf  <- coef(fit)
+@ 
+
+When we code \emph{sex} with a dummy code and \emph{education} with unweighted
+effects codes, we get the following fitted regression equation.
+\begin{align*}
+  \hat{Y}_{\textit{bmi}} = 
+  \Sexpr{round(cf[1], 2)}
+  \Sexpr{round(cf[2], 2)}X_{\textit{female}} + 
+  \Sexpr{round(cf[3], 2)}X_{\textit{ed.mid}} 
+  \Sexpr{round(cf[4], 2)}X_{\textit{ed.hi}}
+\end{align*}
+The reference groups for \emph{sex} is still males. So, the intercept,
+$\hat{\beta}_0 = \Sexpr{round(cf[1], 2)}$, represents the model-implied,
+unweighted mean of BMI for males. To compute the analogous marginal mean from
+the raw data, we would simply average the three group-specific means in the
+first row of Table \ref{mTab}.
+
+\subsection{Dummy Code and Weighted Effects Code}
+
+<<cache = TRUE, echo = FALSE>>=
+data(BMI)
+
+contrasts(BMI$education) <- contr.wec(BMI$education, omitted = "lowest")
+
+fit <- lm(BMI ~ sex + education, data = BMI)
+cf  <- coef(fit)
+@ 
+
+When coding \emph{sex} with a dummy code and \emph{education} with weighted
+effects codes, we get the following fitted regression equation.
+\begin{align*}
+  \hat{Y}_{\textit{bmi}} = 
+  \Sexpr{round(cf[1], 2)} 
+  \Sexpr{round(cf[2], 2)}X_{\textit{female}} + 
+  \Sexpr{round(cf[3], 2)}X_{\textit{ed.mid}} 
+  \Sexpr{round(cf[4], 2)}X_{\textit{ed.hi}}
+\end{align*}
+Here, the intercept, $\hat{\beta}_0 = \Sexpr{round(cf[1], 2)}$, represents the
+model-implied, weighted mean of BMI for males. To compute the analogous marginal
+mean from the raw data, we would weight the three group-specific means in the
+first row of Table \ref{mTab} by the corresponding sample weights in the first
+row of Table \ref{wTab} and sum these products.
+
+\section{Estimated Intercepts $\neq$ Data-Derived Means?}
+
+Often, the estimated intercept from a given model does not match the
+corresponding marginal mean that we would calculate from the raw data. We can
+see an example of this discordance if we review the example with two dummy-coded
+predictors from above. When we use dummy codes for both the \emph{sex} and
+\emph{education} factors, we get an estimated intercept of $\hat{\beta}_0 =
+\Sexpr{round(cf0[1], 3)}$, but the corresponding marginal mean from Table
+\ref{mTab} is $\overline{\textit{BMI}}_{male,ed.low} = \Sexpr{round(mTab0[1, 1],
+  3)} \neq \hat{\beta}_0$.
+
+Although this discordance may be disturbing, we don't really need to worry about
+it. Remember that, for this example, the intercept is the \emph{model-implied}
+mean of males in the lowest educational group. Our model does not perfectly
+reproduce our data, though, so there can be discrepancies. If we estimate the
+appropriate marginal means using our fitted model \citep[e.g., by using the
+  \textbf{emmeans} package,][]{emmeans}, we see that the relevant marginal mean
+estimated from our fitted model matches the estimated intercept.
+
+<<echo = FALSE, results = "asis">>=
+mm <- summary(emmeans(fit0, ~ sex | education))$emmean
+
+mmTab0           <- matrix(mm, nrow = 2)
+rownames(mmTab0) <- levels(BMI$sex)
+colnames(mmTab0) <- levels(BMI$education)
+
+mmTab1 <- xtable(mmTab0, 
+                 caption = "Marginal Means Estimated from the Model",
+                 digits  = 2,
+                 label   = "mmTab")
+
+print(mmTab1, booktabs = TRUE)
+@ 
+
+<<cache = TRUE, echo = FALSE>>=
+n  <- 500
+r2 <- 0.33
+
+x <- sample(-10 : 10, n, TRUE)
+
+s2 <- (var(x) / r2) - var(x)
+y  <- 5 + x + rnorm(n, 0, sqrt(s2))
+
+fit <- lm(y ~ x)
+
+int <- as.numeric(coef(fit)[1])
+m   <- mean(y[x == 0])
+
+p1 <- ggplot(mapping = aes(x = x, y = y, color = (x == 0))) +
+    geom_point() +
+    theme_classic() +
+    scale_color_manual(values = c("darkgray", "red")) +
+    geom_smooth(method = "lm", se = FALSE, color = "blue") +
+    theme(legend.position = "none") +
+    xlab("X") +
+    ylab("Y")
+
+p1 <- p1 + geom_point(mapping = aes(x = 0, y = m),
+                      color   = "black",
+                      shape   = 4,
+                      size    = 5) +
+    geom_hline(yintercept = int, linetype = "solid") +
+    geom_hline(yintercept = m, linetype = "dashed")
+
+labs <- c(as.expression(bquote(beta[0] == .(round(int, 2)))),
+          as.expression(bquote(bar(italic(Y))[italic(X)==0] == .(round(m, 2))))
+          )
+
+p1 <- p1 + annotate("rect",
+                    xmin = c(-9, 5),
+                    xmax = c(-5, 9),
+                    ymin = c(5.5, -1.5),
+                    ymax = c(8.5, 1.5),
+                    fill = "white",
+                    color = "black") +
+    annotate(geom = "text",
+             x = c(-7, 7),
+             y = c(7, 0),
+             label =  labs,
+             color = "black",
+             fontface = "bold")
+@
+
+\subsection{How is this Possible?}
+
+To get some intuition for how the discordance between the model-based estimates
+and the data-derived quantities can occur, consider the following figure.
+
+\vspace{12pt}
+
+<<echo = FALSE, out.width = "85%">>=
+print(p1)
+@ 
+
+The above figure shows a scatterplot of $Y$ against $X$ with the fitted
+regression line overlaid. Notice that the estimated intercept is $\hat{\beta}_0
+= \Sexpr{round(int, 2)}$. If, however, we average all of the $Y$ values for
+which $X = 0$ (i.e., the red points in the figure), we get an estimated mean of
+$Y_{X = 0} = \Sexpr{round(m, 2)} \neq \hat{\beta}_0$. Although these two
+quantities share the same interpretation, they need not match in
+practice. Regardless of what types of predictors are included, the model from
+which the intercept is derived is only approximating the ideal relationship
+between $X$ and $Y$. So, the estimated intercept may not match the analogous
+quantity estimated directly from the raw data.
+
+\bibliographystyle{apacite}
+\bibliography{references.bib}
+
+
+\end{document}

@@ -1,0 +1,1574 @@
+%%% Title:    Overview of Linear Regression
+%%% Author:   Kyle M. Lang
+%%% Created:  2018-04-12
+%%% Modified: 2021-11-03
+
+\documentclass[10pt]{beamer}
+\usetheme{Utrecht}
+
+\usepackage{graphicx}
+\usepackage[natbibapa]{apacite}
+\usepackage[libertine]{newtxmath}
+\usepackage{fancybox}
+\usepackage{booktabs}
+
+\title{Review of Linear Regression}
+\author{Kyle M. Lang}
+\institute{Department of Methodology \& Statistics\\Utrecht University}
+\date{}
+
+
+\begin{document}
+
+<<setup, include=FALSE, cache = FALSE>>=
+set.seed(235711)
+
+library(knitr)
+library(ggplot2)
+library(MASS)
+library(DAAG)
+library(xtable)
+library(MLmetrics)
+
+source("../../code/supportFunctions.R")
+
+options(width = 60)
+opts_chunk$set(size = 'footnotesize', fig.align = 'center', message = FALSE)
+knit_theme$set('edit-kwrite')
+@
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[t,plain]
+\titlepage
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Outline}
+
+  \begin{enumerate}
+  \item Introduction to the ``regression'' problem
+    \va
+  \item Simple linear regression
+    \va
+  \item Multiple linear regression
+    \va
+  \item Categorical predictors
+  \end{enumerate}
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Regression Problem}
+
+  Some of the most ubiquitous and useful statistical models are \emph{regression
+    models}.
+  \vb
+  \begin{itemize}
+  \item \emph{Regression} problems (as opposed to \emph{classification}
+    problems) involve modeling a quantitative response.
+    \vb
+  \item The regression problem begins with a random outcome variable, $Y$.
+    \vb
+  \item We hypothesize that the mean of $Y$ is dependent on some set of
+    fixed covariates, $\mathbf{X}$.
+  \end{itemize}
+
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}{Flavors of Probability Distribution}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      The distributions with which you're probably most familiar imply a
+      constant mean.
+      \vb
+      \begin{itemize}
+      \item Each observation is expected to have the same value of $Y$,
+        regardless of their individual characteristics.
+        \vb
+      \item This type of distribution is called ``marginal'' or ``unconditional.''
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+
+<<echo = FALSE, cache = TRUE>>=
+x <- seq(-4.0, 4.0, 0.001)
+
+dat <- data.frame(X = x, density = dnorm(x))
+
+p <- ggplot(dat, aes(x = X, y = density)) + theme_classic() +
+    coord_cartesian(xlim = c(-4, 4)) +
+    theme(text = element_text(size = 16, family = "Courier"))
+
+p + geom_line() +
+    geom_vline(xintercept = 0, linetype = "dotted", size = 1)
+@
+
+\end{column}
+\end{columns}
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Flavors of Probability Distribution}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      The distributions we consider in regression problems have
+      \emph{conditional means}.
+      \vb
+      \begin{itemize}
+      \item The value of $Y$ that we expect for each observation is defined by
+        the observations' individual characteristics.
+        \vb
+      \item This type of distribution is called ``conditional.''
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+
+      \begin{figure}
+        \includegraphics[width = \textwidth]{%
+          figures/conditional_density_figure.png%
+        }\\
+        \va
+        \tiny{Image retrieved from:
+            \url{http://www.seaturtle.org/mtn/archives/mtn122/mtn122p1.shtml}}
+      \end{figure}
+
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Flavors of Probability Distribution}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      Even a simple comparison of means implies a conditional distribution.
+      \vb
+      \begin{itemize}
+      \item The solid curve corresponds to outcome values for one group.
+        \vb
+      \item The dashed curve represents outcomes from the other group.
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+
+
+<<echo = FALSE, cache = TRUE>>=
+x    <- seq(0, 13, 0.001)
+dat <- data.frame(x  = x,
+                  yA = dnorm(x, 7, 1.5),
+                  yB = dnorm(x, 5, 1.0)
+                  )
+
+p <- ggplot(data = dat) + coord_cartesian(xlim = c(0, 13)) + theme_classic() +
+    geom_line(mapping = aes(x = x, y = yA)) +
+    geom_line(mapping = aes(x = x, y = yB), linetype = "dashed") +
+    labs(title = "Conditional distribution of outcomes",
+         y     = "Density",
+         x     = "Outcome") +
+    theme(text = element_text(size = 16, family = "Courier"),
+          plot.title = element_text(size = 20, face = "bold", hjust = 0.5)
+          )
+p
+@
+
+\end{column}
+\end{columns}
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Projecting a Distribution onto the Plane}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      In practice, we only interact with the X-Y plane of the previous 3D
+      figure.
+      \vb
+      \begin{itemize}
+      \item On the Y-axis, we plot our outcome variable
+        \vb
+      \item The X-axis represents the predictor variable upon which we condition
+        the mean of $Y$.
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+
+<<echo = FALSE, cache = TRUE>>=
+data(Cars93)
+
+out1 <- lm(Horsepower ~ Price, data = Cars93)
+Cars93$yHat  <- fitted(out1)
+Cars93$yMean <- mean(Cars93$Horsepower)
+
+p <- ggplot(data = Cars93, aes(x = Price, y = Horsepower)) +
+    coord_cartesian() +
+    theme_classic() +
+    theme(text = element_text(size = 16, family = "Courier"))
+p1 <- p + geom_point()
+p1
+@
+
+\end{column}
+\end{columns}
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Modeling the X-Y Relationship in the Plane}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      We want to explain the relationship between $Y$ and $X$ by finding the
+      line that traverses the scatterplot as ``closely'' as possible to each
+      point.
+      \vb
+      \begin{itemize}
+      \item This is the ``best fit line''.
+        \vb
+      \item For any given value of $X$ the corresponding point on the best fit
+        line is our best guess for the value of $Y$, given the model.
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+
+<<echo = FALSE, cache = TRUE>>=
+p1 + geom_smooth(method = 'lm', color = "blue", se = FALSE)
+@
+
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}{Simple Linear Regression}
+
+  The best fit line is defined by a simple equation:
+  \begin{align*}
+    \hat{Y} = \hat{\beta}_0 + \hat{\beta}_1 X
+  \end{align*}
+  The above should look very familiar:
+  \begin{align*}
+    Y &= m X + b\\
+      &= \hat{\beta}_1 X + \hat{\beta}_0
+  \end{align*}
+  $\hat{\beta}_0$ is the \emph{intercept}.
+  \begin{itemize}
+  \item The $\hat{Y}$ value when $X = 0$.
+  \item The expected value of $Y$ when $X = 0$.
+  \end{itemize}
+  \vb
+  $\hat{\beta}_1$ is the \emph{slope}.
+  \begin{itemize}
+  \item The change in $\hat{Y}$ for a unit change in $X$.
+  \item The expected change in $Y$ for a unit change in $X$.
+  \end{itemize}
+
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}{Thinking about Error}
+
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      The equation $\hat{Y} = \hat{\beta}_0 + \hat{\beta}_1 X$ only describes
+      the best fit line.
+      \begin{itemize}
+      \item It does not fully quantify the relationship between $Y$ and $X$.\\
+      \end{itemize}
+      \vb
+      \only<2>{
+        We still need to account for the estimation error.
+        \begin{align*}
+          Y = {\color{blue}\hat{\beta}_0 + \hat{\beta}_1 X} + {\color{red}\hat{\varepsilon}}
+        \end{align*}
+      }
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+
+      \only<1>{
+<<echo = FALSE, cache = TRUE>>=
+p1 + geom_smooth(method = 'lm', color = "blue", se = FALSE)
+@
+      }
+      \only<2>{
+
+<<echo = FALSE, cache = TRUE>>=
+p2 <- p + geom_smooth(method = "lm", color = "blue", se = FALSE) +
+    geom_segment(aes(x = Price, y = Horsepower, xend = Price, yend = yHat),
+                 color = "red") +
+    geom_point()
+p2
+@
+      }
+
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}{Estimating the Regression Coefficients}
+
+  The purpose of regression analysis is to use a sample of $N$ observed $\{Y_n,
+  X_n\}$ pairs to find the best fit line defined by $\hat{\beta}_0$ and
+  $\hat{\beta}_1$.
+  \vb
+  \begin{itemize}
+  \item The most popular method of finding the best fit line involves minimizing
+    the sum of the squared residuals.
+    \vb
+  \item $RSS = \sum_{n = 1}^N \hat{\varepsilon}_n^2$
+  \end{itemize}
+
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}{Residuals as the Basis of Estimation}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+
+      The $\hat{\varepsilon}_n$ are defined in terms of deviations between each
+      observed $Y_n$ value and the corresponding $\hat{Y}_n$.
+      \begin{align*}
+        \hat{\varepsilon}_n = Y_n - \hat{Y}_n =
+        Y_n - \left(\hat{\beta}_0 + \hat{\beta}_1 X_n\right)
+      \end{align*}
+      Each $\hat{\varepsilon}_n$ is squared before summing to remove negative
+      values.
+      \begin{align*}
+        RSS &= \sum_{n = 1}^N \hat{\varepsilon}_n^2 =
+              \sum_{n = 1}^N \left(Y_n - \hat{Y}_n\right)^2\\
+            &= \sum_{n = 1}^N \left(Y_n - \hat{\beta}_0 - \hat{\beta}_1
+              X_n\right)^2
+      \end{align*}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+
+<<echo = FALSE, cache = TRUE>>=
+p + geom_smooth(method = "lm", color = "blue", se = FALSE) +
+    geom_segment(aes(x = Price, y = Horsepower, xend = Price, yend = yHat),
+                 color = "red") +
+    geom_point()
+@
+
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}[fragile]{Least Squares Example}
+
+  Estimate the least squares coefficients for our example data:
+
+<<cache = TRUE>>=
+#data(Cars93)
+out1 <- lm(Horsepower ~ Price, data = Cars93)
+coef(out1)
+@
+
+<<echo = FALSE, cache = TRUE>>=
+b0 <- round(coef(out1)[1], 2)
+b1 <- round(coef(out1)[2], 2)
+@
+
+The estimated intercept is $\hat{\beta}_0 = \Sexpr{b0}$.
+\begin{itemize}
+\item A free car is expected to have \Sexpr{b0} horsepower.
+\end{itemize}
+\vb
+The estimated slope is: $\hat{\beta}_1 = \Sexpr{b1}$.
+\begin{itemize}
+\item For every additional \$1000 in price, a car is expected to gain \Sexpr{b1}
+  horsepower.
+\end{itemize}
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Model-Based Prediction}
+
+  In the social and behavioral sciences, regression modeling is often focused on
+  inference about estimated model parameters.
+  \vc
+  \begin{itemize}
+  \item The association between the price of a car and its power.
+    \vc
+  \item We model the system and scrutinize $\hat{\beta}_1$ to make inferences
+    about the association between price and power.
+  \end{itemize}
+  \vb
+  \pause
+  In data science applications, we're often more interested in predicting the
+  outcome for new observations.
+  \vc
+  \begin{itemize}
+  \item After we estimate $\hat{\beta}_0$ and $\hat{\beta}_1$, we can plug in
+    new predictor data and get a predicted outcome value for any new case.
+  \vc
+  \item In our example, these predictions represent the projected horsepower
+    ratings of cars with prices given by the new $X_{price}$ values.
+  \end{itemize}
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Inference vs. Prediction}
+
+  When doing statistical inference, we focus on how certain variables relate to
+  the outcome.
+  \begin{itemize}
+  \item Do men have higher job-satisfaction than women?
+  \item Does increased spending on advertising correlate with more sales?
+  \item Is there a relationship between the number of liquor stores in a
+    neighborhood and the amount of crime?
+  \end{itemize}
+
+  \vb
+  \pause
+
+  When doing prediction, we want to build a tool that can accurately guess
+  future values.
+  \begin{itemize}
+  \item Will it rain tomorrow?
+  \item Will this investment turn a profit within one year?
+  \item Will increasing the number of contact hours improve grades?
+  \end{itemize}
+
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}{Model Fit}
+  We may also want to know how well our model explains the outcome.
+  \begin{itemize}
+  \item Our model explains some proportion of the outcome's variability.
+  \item The residual variance $\hat{\sigma}^2 = \text{Var}(\hat{\varepsilon})$
+    will be less than $\text{Var}(Y)$.
+  \end{itemize}
+
+  \begin{columns}
+    \begin{column}{0.4\textwidth}
+      \only<1>{
+<<echo = FALSE>>=
+dat3 <- data.frame(y = Cars93$Horsepower, r = resid(out1))
+
+p10 <- ggplot(data = dat3, aes(x = y)) +
+    coord_cartesian() + theme_classic() +
+    theme(text = element_text(size = 16, family = "Courier"))
+
+p10 + geom_density() + xlim(0, 350) + labs(x = "Original Outcome")
+@
+      }
+      \only<2>{
+<<echo = FALSE>>=
+p5 <- ggplot(data = Cars93, aes(x = Price, y = Horsepower)) +
+    coord_cartesian() +
+    theme_classic() +
+    theme(text = element_text(size = 16, family = "Courier"))
+
+p5 + geom_smooth(method = "lm", formula = y ~ 1, color = "blue", se = FALSE) +
+    geom_segment(aes(x = Price, y = Horsepower, xend = Price, yend = yMean),
+                 color = "red") +
+    geom_point()
+@
+      }
+    \end{column}
+    \begin{column}{0.1\textwidth}
+
+      \Huge{$\rightarrow$}
+
+    \end{column}
+    \begin{column}{0.4\textwidth}
+
+      \only<1>{
+<<echo = FALSE>>=
+p11 <- ggplot(data = dat3, aes(x = r)) +
+    coord_cartesian() + theme_classic() +
+    theme(text = element_text(size = 16, family = "Courier"))
+
+p11 + geom_density() + xlim(-140, 150) + labs(x = "Residuals")
+@
+      }
+      \only<2>{
+
+<<echo = FALSE>>=
+p7 <- p5 + geom_smooth(method = "lm", color = "blue", se = FALSE) +
+    geom_segment(aes(x = Price, y = Horsepower, xend = Price, yend = yHat),
+                 color = "red") +
+    geom_point()
+p7
+@
+      }
+
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}[shrink = 5]{Model Fit}
+
+  We quantify the proportion of the outcome's variance that is explained by our
+  model using the $R^2$ statistic:
+  \begin{align*}
+    R^2 = \frac{TSS - RSS}{TSS} = 1 - \frac{RSS}{TSS}
+  \end{align*}
+  where
+  \begin{align*}
+    TSS = \sum_{n = 1}^N \left(Y_n - \bar{Y}\right)^2 =
+    \text{Var}(Y)\times (N - 1)
+  \end{align*}
+
+<<echo = FALSE, cache = TRUE>>=
+ssr <- round(crossprod(resid(out1)))
+sst <- round(crossprod(scale(Cars93$Horsepower, scale = FALSE)))
+r2 <- round(1 - (ssr / sst), 2)
+@
+
+For our example problem, we get:
+\begin{align*}
+  R^2 = 1 - \frac{\Sexpr{as.integer(ssr)}}{\Sexpr{as.integer(sst)}} \approx
+  \Sexpr{r2}
+\end{align*}
+Indicating that car price explains \Sexpr{r2 * 100}\% of the variability in
+horsepower.
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Model Fit for Prediction}
+
+  When assessing predictive performance, we will most often use the \emph{mean
+    squared error} (MSE) as our criterion.
+  \vb
+  \begin{align*}
+    MSE &= \frac{1}{N} \sum_{n = 1}^N \left(Y_n - \hat{Y}_n\right)^2\\
+    &= \frac{1}{N} \sum_{n = 1}^N \left(Y_n - \hat{\beta}_0 -
+    \sum_{p = 1}^P \hat{\beta}_p X_{np} \right)^2\\
+    &= \frac{RSS}{N}
+  \end{align*}
+
+<<echo = FALSE, cache = TRUE>>=
+mse <- round(ssr / nrow(Cars93), 2)
+@
+
+For our example problem, we get:
+\begin{align*}
+  MSE = \frac{\Sexpr{as.integer(ssr)}}{\Sexpr{nrow(Cars93)}} \approx \Sexpr{mse}
+\end{align*}
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Interpreting MSE}
+
+<<echo = FALSE>>=
+rmse <- round(sqrt(ssr/nrow(Cars93)), 2)
+@
+
+  The MSE quantifies the average squared prediction error.
+  \begin{itemize}
+  \item Taking the square root improves interpretation.
+  \end{itemize}
+  \begin{align*}
+    RMSE = \sqrt{MSE}
+  \end{align*}
+  The RMSE estimates the magnitude of the expected prediction error.
+  \begin{itemize}
+  \item For our example problem, we get:
+  \end{itemize}
+  \begin{align*}
+    RMSE = \sqrt{\frac{\Sexpr{as.integer(ssr)}}{\Sexpr{nrow(Cars93)}}} \approx
+    \Sexpr{rmse}
+  \end{align*}
+  \vx{-8}
+  \begin{itemize}
+  \item When using price as the only predictor of horsepower, we expect
+    prediction errors with magnitudes of \Sexpr{rmse} horsepower.
+  \end{itemize}
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\sectionslide{Multiple Linear Regression}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}{Graphical Representations of Regression Models}
+
+  A regression of two variables can be represented on a 2D scatterplot.
+  \begin{itemize}
+  \item Simple linear regression implies a 1D line in 2D space.
+  \end{itemize}
+  \vb
+  \begin{columns}
+    \begin{column}{0.45\textwidth}
+
+<<echo = FALSE, cache = TRUE>>=
+p <- ggplot(data = mtcars, mapping = aes(x = wt, y = mpg)) +
+    theme_classic() +
+    theme(text = element_text(size = 16, family = "Courier")) +
+    labs(x = "Weight", y = "MPG") +
+    geom_point(aes(size = 3), show.legend = FALSE, colour = "blue")
+p
+@
+
+\end{column}
+
+\begin{column}{0.1\textwidth}
+
+  \begin{center}\huge{$\rightarrow$}\end{center}
+
+\end{column}
+
+\begin{column}{0.45\textwidth}
+
+<<echo = FALSE, cache = TRUE>>=
+p + geom_smooth(method = "lm", se = FALSE, col = "black")
+@
+
+\end{column}
+\end{columns}
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Graphical Representations of Regression Models}
+
+  Adding an additional predictor leads to a 3D point cloud.
+  \vb
+  \begin{itemize}
+  \item A regression model with two IVs implies a 2D plane in 3D space.
+  \end{itemize}
+
+  \begin{columns}
+    \begin{column}{0.45\textwidth}
+
+      \includegraphics[width = 1.2\textwidth]{figures/3d_data_plot}
+
+    \end{column}
+
+    \begin{column}{0.1\textwidth}
+
+      \begin{center}\huge{$~~~~\rightarrow$}\end{center}
+
+    \end{column}
+
+    \begin{column}{0.45\textwidth}
+
+      \includegraphics[width = 1.2\textwidth]{figures/response_surface_plot}
+
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}{Partial Effects}
+
+  In MLR, we want to examine the \emph{partial effects} of the predictors.
+  \vb
+  \begin{itemize}
+  \item What is the effect of a predictor after controlling for some other set
+    of variables?
+  \end{itemize}
+  \va
+  This approach is crucial to controlling confounds and adequately modeling
+  real-world phenomena.
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Example}
+
+<<cache = TRUE>>=
+## Read in the 'diabetes' dataset:
+dDat <- readRDS("../data/diabetes.rds")
+
+## Simple regression with which we're familiar:
+out1 <- lm(bp ~ age, data = dDat)
+@
+
+\va
+
+\textsc{Asking}: What is the effect of age on average blood pressure?
+
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}[allowframebreaks, fragile]{Example}
+
+<<cache = TRUE>>=
+partSummary(out1, -1)
+@
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}[fragile]{Example}
+
+<<cache = TRUE>>=
+## Add in another predictor:
+out2 <- lm(bp ~ age + bmi, data = dDat)
+@
+
+\va
+
+\textsc{Asking}: What is the effect of BMI on average blood pressure,
+\emph{after controlling for age?}
+\vb
+\begin{itemize}
+  \item We're partialing age out of the effect of BMI on blood pressure.
+\end{itemize}
+
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}[allowframebreaks, fragile]{Example}
+
+<<cache = TRUE>>=
+partSummary(out2, -1)
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Interpretation}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+
+      \begin{itemize}
+      \item The expected average blood pressure for an unborn patient with a
+        negligible extent is \Sexpr{round(coef(out2)[1], 2)}.
+        \vb
+      \item For each year older, average blood pressure is expected to increase
+        by \Sexpr{round(coef(out2)['age'], 2)} points, after controlling for
+        BMI.
+        \vb
+      \item For each additional point of BMI, average blood pressure is
+        expected to increase by \Sexpr{round(coef(out2)['bmi'], 2)} points,
+        after controlling for age.
+      \end{itemize}
+
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+
+      \includegraphics[width = 1.1\textwidth]{figures/response_surface_plot2}
+
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Multiple $R^2$}
+
+  How much variation in blood pressure is explained by the two models?
+  \begin{itemize}
+    \item Check the $R^2$ values.
+  \end{itemize}
+
+<<cache = TRUE>>=
+## Extract R^2 values:
+r2.1 <- summary(out1)$r.squared
+r2.2 <- summary(out2)$r.squared
+
+r2.1
+r2.2
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile, allowframebreaks]{F-Statistic}
+
+  How do we know if the $R^2$ values are significantly greater than zero?
+  \begin{itemize}
+  \item We use the F-statistic to test $H_0: R^2 = 0$ vs. $H_1: R^2 > 0$.
+  \end{itemize}
+
+<<>>=
+f1 <- summary(out1)$fstatistic
+f1
+pf(q = f1[1], df1 = f1[2], df2 = f1[3], lower.tail = FALSE)
+@
+
+\pagebreak
+
+<<>>=
+f2 <- summary(out2)$fstatistic
+f2
+pf(f2[1], f2[2], f2[3], lower.tail = FALSE)
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Comparing Models}
+
+  How do we quantify the additional variation explained by BMI, above and beyond
+  age?
+  \begin{itemize}
+  \item Compute the $\Delta R^2$
+  \end{itemize}
+
+<<cache = TRUE>>=
+## Compute change in R^2:
+r2.2 - r2.1
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Significance Testing}
+
+How do we know if $\Delta R^2$ represents a significantly greater degree of
+explained variation?
+\begin{itemize}
+\item Use an $F$-test for $H_0: \Delta R^2 = 0$ vs. $H_1: \Delta R^2 > 0$
+\end{itemize}
+
+<<>>=
+## Is that increase significantly greater than zero?
+anova(out1, out2)
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Model Comparison}
+
+  We can also compare models based on their prediction errors.
+  \begin{itemize}
+  \item For OLS regression, we usually compare MSE values.
+  \end{itemize}
+  \vx{-6}
+<<>>=
+mse1 <- MSE(y_pred = predict(out1), y_true = dDat$bp)
+mse2 <- MSE(y_pred = predict(out2), y_true = dDat$bp)
+
+mse1
+mse2
+@
+
+In this case, the MSE for the model with $BMI$ included is smaller.
+\begin{itemize}
+\item We should prefer the the larger model.
+\end{itemize}
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Model-Building Example}
+
+  Let's walk through an example of the model-building process.
+  \vc
+  \begin{itemize}
+    \item We'll take $Y_{bp} = \beta_0 + \beta_1 X_{age.30} + \varepsilon$ as
+      our baseline model.
+      \vc
+    \item Next, we simultaneously add predictors of LDL and HDL cholesterol.
+  \end{itemize}
+<<cache = TRUE>>=
+## Center predictor variables:
+dDat$ldl100 <- dDat$ldl - 100
+dDat$hdl60  <- dDat$hdl - 60
+dDat$age30  <- dDat$age - 30
+
+## Baseline model:
+out1 <- lm(bp ~ age30, data = dDat)
+
+## Simultaneously add two predictors:
+out2 <- lm(bp ~ age30 + ldl100 + hdl60, data = dDat)
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[allowframebreaks, fragile]{Model-Building Example}
+
+<<cache = TRUE>>=
+partSummary(out1, -1)
+@
+
+\pagebreak
+
+<<cache = TRUE>>=
+partSummary(out2, -1)
+@
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}{Interpretations}
+
+  \begin{itemize}
+  \item The expected average blood pressure for a 30 year old patient with LDL =
+    100 and HDL = 60 is \Sexpr{round(coef(out2)[1], 2)}.
+    \vb
+  \item For each additional year older, average blood pressure is expected to
+    increase by \Sexpr{round(coef(out2)['age30'], 2)}, after controlling for LDL
+    and HDL levels.
+    \vb
+  \item For each additional unit of LDL level, average blood pressure is
+    expected to increase by \Sexpr{round(coef(out2)['ldl100'], 2)}, after
+    controlling for age and HDL.
+    \vb
+  \item For each additional unit of HDL level, average blood pressure is
+    expected to decrease by \Sexpr{round(coef(out2)['hdl60'], 2)}, after
+    controlling for age and LDL.
+  \end{itemize}
+
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}[fragile]{Model Comparison}
+
+<<cache = TRUE>>=
+## Compute change in R^2:
+summary(out2)$r.squared - summary(out1)$r.squared
+
+## Significance test for change in R^2:
+anova(out1, out2)
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Model Comparison}
+
+<<>>=
+mse1 <- MSE(y_pred = predict(out1), y_true = dDat$bp)
+mse2 <- MSE(y_pred = predict(out2), y_true = dDat$bp)
+
+mse1
+mse2
+@
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}{Interpretations}
+
+<<echo = FALSE>>=
+r2.1 <- summary(out1)$r.squared
+r2.2 <- summary(out2)$r.squared
+@
+
+\begin{itemize}
+\item Age, LDL, and HDL explain a combined \Sexpr{round(100 * r2.2, 1)}\% of
+  the variation in blood pressure.
+  \vc
+  \begin{itemize}
+  \item This proportion of variation explained is significantly greater than
+    zero.
+  \end{itemize}
+  \vb
+\item Adding LDL and HDL produces a model that explains \Sexpr{round(100 *
+  (r2.2 - r2.1), 1)}\% more variation in blood pressure than a model with age
+  as the only predictor.
+  \vc
+  \begin{itemize}
+  \item This increase in variation explained is significantly greater than zero.
+  \end{itemize}
+  \vb
+\item Adding LDL and HDL produces a model with lower prediction error
+  (i.e., MSE = \Sexpr{round(mse2, 2)} vs. MSE = \Sexpr{round(mse1, 2)}).
+\end{itemize}
+
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}[fragile]{Continue Building the Model}
+
+  So far we've established that age, LDL, and HDL are all significant predictors
+  of average blood pressure.
+  \vc
+  \begin{itemize}
+  \item We've also established that adding LDL and HDL, together, explain
+    significantly more variation than age alone.
+  \end{itemize}
+  \vb
+  Next, we'll add BMI to see what additional explanatory role it can play
+  above and beyond age and cholesterol.
+
+<<cache = TRUE>>=
+## Center BMI:
+dDat$bmi25 <- dDat$bmi - 25
+
+## Now, add bmi:
+out3 <-
+    lm(bp ~ age30 + ldl100 + hdl60 + bmi25, data = dDat)
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Model-Building Example}
+
+<<cache = TRUE>>=
+partSummary(out3, -1)
+@
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}[fragile]{Interpretations}
+
+  BMI seems to have a pretty strong effect on average blood pressure, after
+  controlling for age and cholesterol levels.
+  \vc
+  \begin{itemize}
+  \item After controlling for BMI, cholesterol levels no longer seem to be
+    important predictors.
+    \vc
+  \item Let's take a look at what happens to the cholesterol effects when we add
+    BMI:
+  \end{itemize}
+
+<<echo = FALSE, cache = TRUE, results = 'asis'>>=
+tab1 <- rbind(coef(out2)[-c(1, 2)], coef(out3)[-c(1, 2, 5)])
+rownames(tab1) <- c("Without BMI", "With BMI")
+colnames(tab1) <- c("LDL", "HDL")
+xTab1 <- xtable(tab1, align = rep("l", 3), digits = 3)
+print(xTab1, booktabs = TRUE)
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Model Comparison}
+
+  How much additional variability in blood pressure is explained by BMI above
+  and beyond age and cholesterol levels?
+<<cache = TRUE>>=
+r2.3 <- summary(out3)$r.squared
+r2.3 - r2.2
+@
+
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}[fragile]{Model Comparison}
+
+  Is the additional \Sexpr{round(100 * (r2.3 - r2.2), 2)}\% variation explained
+  a significant increase?
+
+<<>>=
+anova(out2, out3)
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Model Comparison}
+
+  What about the relative predictive performance?
+<<>>=
+mse3 <- MSE(y_pred = predict(out3), y_true = dDat$bp)
+
+mse2
+mse3
+@
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}[fragile]{Model Modification}
+
+  Maybe cholesterol levels are not important features once we've accounted for
+  BMI.
+  \vc
+  \begin{itemize}
+  \item Let's try a model including BMI but excluding cholesterol levels.
+  \end{itemize}
+
+<<cache = TRUE>>=
+## Take out the cholesterol variables:
+out4 <- lm(bp ~ age30 + bmi25, data = dDat)
+@
+
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}[fragile]{Model-Building Example}
+
+<<cache = TRUE>>=
+partSummary(out4, -1)
+@
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}[fragile]{Model Comparison}
+
+  How much explained variation did we loose by removing the LDL and HDL
+  variables?
+
+<<cache = TRUE>>=
+r2.4 <- summary(out4)$r.squared
+r2.3 - r2.4
+@
+
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}[fragile]{Model Comparison}
+
+  Is this \Sexpr{round(100 * (r2.3 - r2.4), 2)}\% loss in explained variance
+  significant?
+
+<<>>=
+anova(out4, out3)
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Model Comparison}
+
+  How do the prediction errors compare?
+<<>>=
+mse4 <- MSE(y_pred = predict(out4), y_true = dDat$bp)
+
+mse3
+mse4
+@
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\sectionslide{Categorical Predictors}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Categorical Predictors}
+
+  Most of the predictors we've considered thus far have been
+  \emph{quantitative}.
+  \vc
+  \begin{itemize}
+  \item Continuous variables that can take any real value in their range
+    \vc
+  \item Interval or Ratio scaling
+  \end{itemize}
+  \vb
+  We often want to include grouping factors as predictors.
+  \vc
+  \begin{itemize}
+  \item These variables are \emph{qualitative}.
+    \begin{itemize}
+    \item Their values are simply labels.
+      \vc
+    \item There is no ordering of the categories.
+      \vc
+    \item Nominal scaling
+    \end{itemize}
+  \end{itemize}
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{How to Model Categorical Predictors}
+
+  We need to be careful when we include categorical predictors into a regression
+  model.
+  \vc
+  \begin{itemize}
+  \item The variables need to be coded before entering the model
+  \end{itemize}
+  \vb
+  Consider the following indicator of major:
+  $X_{maj} = \{1 = \textit{Law}, 2 = \textit{Economics}, 3 = \textit{Data Science}\}$
+  \vc
+  \begin{itemize}
+    \item What would happen if we na\"ively used this variable to predict
+      program satisfaction?
+  \end{itemize}
+
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}[allowframebreaks, fragile]{How to Model Categorical Predictors}
+
+<<>>=
+mDat <- readRDS("../data/major_data.rds")
+mDat[seq(25, 150, 25), ]
+out1 <- lm(sat ~ majN, data = mDat)
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{How to Model Categorical Predictors}
+
+<<>>=
+partSummary(out1, -1)
+@
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}{Dummy Coding}
+
+  The most common way to code categorical predictors is \emph{dummy coding}.
+  \vb
+  \begin{itemize}
+  \item A $G$-level factor must be converted into a set of $G - 1$ dummy codes.
+    \vb
+  \item Each code is a variable on the dataset that equals 1 for observations
+    corresponding to the code's group and equals 0, otherwise.
+    \vb
+  \item The group without a code is called the \emph{reference group}.
+  \end{itemize}
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Example Dummy Code}
+ Let's look at the simple example of coding biological sex:
+<<echo = FALSE, results = "asis">>=
+sex  <- factor(sample(c("male", "female"), 10, TRUE))
+male <- as.numeric(model.matrix(~sex)[ , -1])
+
+xTab2 <- xtable(data.frame(sex, male), digits = 0)
+print(xTab2, booktabs = TRUE)
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Example Dummy Codes}
+ Now, a slightly more complex  example:
+<<echo = FALSE, results = "asis">>=
+drink <- factor(sample(c("coffee", "tea", "juice"), 10, TRUE))
+
+codes           <- model.matrix(~drink)[ , -1]
+colnames(codes) <- c("juice", "tea")
+
+xTab3 <- xtable(data.frame(drink, codes), digits = 0)
+print(xTab3, booktabs = TRUE)
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Using Dummy Codes}
+
+  To use the dummy codes, we simply include the $G - 1$ codes as $G - 1$
+  predictor variables in our regression model.
+  \begin{align*}
+    Y &= \beta_0 + \beta_1 X_{male} + \varepsilon\\
+    Y &= \beta_0 + \beta_1 X_{juice} + \beta_2 X_{tea} + \varepsilon
+  \end{align*}
+  \vx{-18}
+  \begin{itemize}
+  \item The intercept corresponds to the mean of $Y$ for the reference group.
+    \vc
+  \item Each slope represents the difference between the mean of $Y$ in the
+    coded group and the mean of $Y$ in the reference group.
+  \end{itemize}
+
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}[fragile, allowframebreaks]{Example}
+
+  First, an example with a single, binary dummy code:
+
+<<>>=
+## Read in some data:
+cDat <- readRDS("../data/cars_data.rds")
+
+## Fit and summarize the model:
+out2 <- lm(price ~ mtOpt, data = cDat)
+@
+
+\pagebreak
+
+<<>>=
+partSummary(out2, -1)
+@
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}{Interpretations}
+
+  \begin{itemize}
+  \item The average price of a car without the option for a manual transmission
+    is $\hat{\beta}_0 = \Sexpr{round(coef(out2)[1], 2)}$ thousand dollars.
+    \vb
+  \item The average difference in price between cars that have manual
+    transmissions as an option and those that do not is $\hat{\beta}_1 =
+    \Sexpr{round(coef(out2)[2], 2)}$ thousand dollars.
+  \end{itemize}
+
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}[fragile]{Example}
+
+Fit a more complex model:
+
+<<>>=
+out3 <- lm(price ~ front + rear, data = cDat)
+partSummary(out3, -1)
+@
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}{Interpretations}
+
+  \begin{itemize}
+  \item The average price of a four-wheel-drive car is $\hat{\beta}_0 =
+    \Sexpr{round(coef(out3)[1], 2)}$ thousand dollars.
+    \vb
+  \item The average difference in price between front-wheel-drive cars and
+    four-wheel-drive cars is $\hat{\beta}_1 = \Sexpr{round(coef(out3)[2], 2)}$
+    thousand dollars.
+   \vb
+  \item The average difference in price between rear-wheel-drive cars and
+    four-wheel-drive cars is $\hat{\beta}_2 = \Sexpr{round(coef(out3)[3], 2)}$
+    thousand dollars.
+  \end{itemize}
+
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}[fragile]{Example}
+
+  Include two sets of dummy codes:
+
+<<>>=
+out4 <- lm(price ~ mtOpt + front + rear, data = cDat)
+partSummary(out4, -c(1, 2))
+@
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}{Interpretations}
+
+  \begin{itemize}
+  \item The average price of a four-wheel-drive car that does not have a manual
+    transmission option is $\hat{\beta}_0 = \Sexpr{round(coef(out4)[1], 2)}$
+    thousand dollars.
+    \vb
+  \item After controlling for drive type, the average difference in price
+    between cars that have manual transmissions as an option and those that do
+    not is $\hat{\beta}_1 = \Sexpr{round(coef(out4)[2], 2)}$ thousand dollars.
+    \vb
+  \item After controlling for transmission options, the average difference in
+    price between front-wheel-drive cars and four-wheel-drive cars is
+    $\hat{\beta}_2 = \Sexpr{round(coef(out4)[3], 2)}$ thousand dollars.
+   \vb
+  \item After controlling for transmission options, the average difference in
+    price between rear-wheel-drive cars and four-wheel-drive cars is
+    $\hat{\beta}_3 = \Sexpr{round(coef(out4)[4], 2)}$ thousand dollars.
+  \end{itemize}
+
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}[fragile]{Significance Testing}
+
+  For variables with only two levels, we can test the overall factor's
+  significance by evaluating the significance of a single dummy code.
+
+<<>>=
+partSummary(out2, -c(1, 2))
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Significance Testing}
+
+  For variables with more than two levels, we need to simultaneously evaluate
+  the significance of each of the variable's dummy codes.
+
+<<>>=
+partSummary(out4, -c(1, 2))
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Significance Testing}
+
+<<>>=
+summary(out4)$r.squared - summary(out2)$r.squared
+anova(out2, out4)
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Significance Testing}
+
+  What about models where a single nominal factor is the only predictor?
+
+<<>>=
+partSummary(out3, -c(1, 2))
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Significance Testing}
+
+  We can compare back to an ``intercept-only'' model.
+
+<<>>=
+out0 <- lm(price ~ 1, data = cDat)
+partSummary(out0, -1)
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Significance Testing}
+
+<<>>=
+r2Diff <- summary(out3)$r.squared - summary(out0)$r.squared
+r2Diff
+anova(out0, out3)
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Significance Testing}
+
+  We don't actually need to do the explicit model comparison, though.
+
+<<>>=
+r2Diff
+summary(out3)$r.squared
+
+anova(out0, out3)[2, "F"]
+summary(out3)$fstatistic[1]
+@
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}{Conclusion}
+
+  \begin{itemize}
+  \item Each variable in a regression model corresponds to a dimension in the
+    data-space.
+    \vc
+    \begin{itemize}
+    \item A regression model with P predictors implies a P-dimensional
+      (hyper)-plane in (P + 1)-dimensional space.
+    \end{itemize}
+    \vb
+  \item The coefficients in MLR are partial coefficients.
+    \vc
+    \begin{itemize}
+    \item Each effect is interpreted as holding other predictors constant.
+    \end{itemize}
+    \vb
+  \item Categorical predictors must be coded before they can be used in our
+    models.
+    \vc
+    \begin{itemize}
+    \item The regression coefficients represent group mean differences.
+    \end{itemize}
+  \end{itemize}
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\end{document}

@@ -1,0 +1,31 @@
+\begin{thebibliography}{}
+
+\bibitem [\protect \citeauthoryear {%
+Long%
+\ \BBA {} Trivedi%
+}{%
+Long%
+\ \BBA {} Trivedi%
+}{%
+{\protect \APACyear {1993}}%
+}]{%
+longTrivedi:1993}
+\APACinsertmetastar {%
+longTrivedi:1993}%
+\begin{APACrefauthors}%
+Long, J\BPBI S.%
+\BCBT {}\ \BBA {} Trivedi, P\BPBI K.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1993}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Some Specification Tests for the Linear Regression
+  Model} {Some specification tests for the linear regression model}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Sociological Methods \& Research}{21}{2}{161--204}.
+\newblock
+\begin{APACrefDOI} \doi{10.1177/0049124192021002003} \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
+
+\end{thebibliography}

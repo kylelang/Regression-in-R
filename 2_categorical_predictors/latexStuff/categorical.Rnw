@@ -1,0 +1,928 @@
+%%% Title:    DSS Stats & Methods: Lecture 7
+%%% Author:   Kyle M. Lang
+%%% Created:  2017-09-12
+%%% Modified: 2020-09-25
+
+\documentclass{beamer}
+\usetheme[%
+  pageofpages          = of,
+  bullet               = circle,
+  titleline            = true,
+  alternativetitlepage = true,
+  titlepagelogo        = Logo3,
+  watermark            = watermarkTiU,
+  watermarkheight      = 100px,
+  watermarkheightmult  = 4%
+]{UVT}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[natbibapa]{apacite}
+\usepackage[libertine]{newtxmath}
+\usepackage{fancybox}
+
+%% Ensure styles of `blocks' (used in Definitions, Theorems etc.) follows the
+%% UVT-style theme:
+\setbeamercolor{block title}{fg = darkblue, bg = white}
+\setbeamercolor{block body}{use = block title, bg = block title.bg}
+
+%% Ensure TableOfContents is in UVT-style theme:
+\setbeamercolor{section in toc}{fg = darkblue}
+
+\title{Categorical Predictors}
+\subtitle{Statistics \& Methodology Lecture 7}
+\author{Kyle M. Lang}
+\institute{Department of Methodology \& Statistics\\Tilburg University}
+\date{}
+
+\begin{document}
+
+<<setup, include=FALSE>>=
+set.seed(235711)
+
+library(knitr)
+library(ggplot2)
+library(MASS)
+library(lattice)
+library(xtable)
+
+source("../../../code/supportFunctions.R")
+
+options(width = 60)
+opts_chunk$set(size = 'footnotesize', fig.align = 'center')
+knit_theme$set('edit-kwrite')
+
+lightBlue <- rgb(0, 137, 191, max = 255)
+midBlue   <- rgb(0, 131, 183, max = 255)
+darkBlue  <- rgb(0, 128, 179, max = 255)
+deepGold  <- rgb(184, 138, 45, max = 255)
+lightGold <- rgb(195, 146, 48, max = 255)
+@
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[t,plain]
+\titlepage
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Outline}
+
+  \begin{enumerate}
+  \item Adding categorical predictors into MLR models
+  \end{enumerate}
+  
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Categorical Predictors}
+  
+  Most of the predictors we've considered thus far have been \emph{quantitative}.
+  \vc
+  \begin{itemize}
+  \item Continuous variables that can take any real value in their range
+    \vc
+  \item Interval or Ratio scaling
+    \vc
+  \item If we use ordinal items as predictors, we assume interval scaling.
+  \end{itemize}
+  \vb
+  We often want to include grouping factors as predictors.
+  \vc
+  \begin{itemize}
+  \item These variables are \emph{qualitative}.
+    \begin{itemize}
+    \item Their values are simply labels.
+    \item There is no ordering of the categories.
+    \item Nominal scaling
+    \end{itemize}
+  \end{itemize}
+  
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{How to Model Categorical Predictors}
+  
+  We need to be careful when we include categorical predictors into a regression
+  model.
+  \vc
+  \begin{itemize}
+  \item The variables need to be coded before entering the model.
+  \end{itemize}
+  \vb 
+  Consider the following indicator of major: 
+  $X_{maj} = \{1 = \textit{Law}, 2 = \textit{Economics}, 
+  3 = \textit{Data Science}\}$ 
+  \vc
+  \begin{itemize}
+    \item What would happen if we na\"ively used this variable to predict
+      program satisfaction?
+  \end{itemize}
+  
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}[fragile]{How to Model Categorical Predictors}
+  
+<<>>=
+mDat <- readRDS("../data/major_data.rds")
+mDat[seq(25, 150, 25), ]
+out <- lm(sat ~ majN, data = mDat)
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{How to Model Categorical Predictors}
+  
+<<>>=
+partSummary(out, -c(1, 2))
+@
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}{Dummy Coding}
+  
+  The most common way to code categorical predictors is \emph{dummy coding}.
+  \vb
+  \begin{itemize}
+  \item A $G$-level factor (i.e., one that represents $G$ groups) will be 
+    transformed into a set of $G - 1$ dummy codes.
+    \vb
+  \item Each code is a variable on the dataset that equals 1 for observations
+    corresponding to the code's group and equals 0, otherwise.
+    \vb
+  \item The group without a code is called the \emph{reference group}.
+  \end{itemize}
+  
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Example Dummy Code} 
+ Let's look at the simple example of coding biological sex: 
+<<echo = FALSE, results = "asis">>=
+sex  <- factor(sample(c("male", "female"), 10, TRUE))
+male <- as.numeric(model.matrix(~sex)[ , -1])
+
+xTab2 <- xtable(data.frame(sex, male), digits = 0)
+print(xTab2, booktabs = TRUE)
+@ 
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Example Dummy Codes} 
+ Now, a slightly more complex  example: 
+<<echo = FALSE, results = "asis">>=
+drink <- factor(sample(c("coffee", "tea", "juice"), 10, TRUE))
+
+codes           <- model.matrix(~drink)[ , -1]
+colnames(codes) <- c("juice", "tea")
+
+xTab3 <- xtable(data.frame(drink, codes), digits = 0)
+print(xTab3, booktabs = TRUE)
+@ 
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Using Dummy Codes}
+  
+  To use the dummy codes, we simply include the $G - 1$ codes as $G - 1$
+  predictor variables in our regression model.
+  \begin{align*}
+    Y &= \beta_0 + \beta_1 X_{male} + \varepsilon\\[6pt]
+    Y &= \beta_0 + \beta_1 X_{juice} + \beta_2 X_{tea} + \varepsilon
+  \end{align*}
+  \vx{-12}
+  \begin{itemize}
+  \item The intercept corresponds to the mean of $Y$ in the reference group.
+    \vb
+  \item Each slope represents the difference between the mean of $Y$ in the 
+    coded group and the mean of $Y$ in the reference group.
+  \end{itemize}
+  
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}[fragile, allowframebreaks]{Example}
+  
+  First, an example with a single, binary dummy-coded variable:
+
+<<>>=
+## Read in some data:
+cDat <- readRDS("../data/cars_data.rds")
+
+## Fit and summarize the model:
+out1 <- lm(price ~ mtOpt, data = cDat)
+@ 
+
+\pagebreak
+
+<<>>=
+partSummary(out1, -c(1, 2))
+@ 
+
+\pagebreak
+  
+Fit a more complex model:
+
+<<>>=
+out2 <- lm(price ~ front + rear, data = cDat)
+partSummary(out2, -c(1, 2))
+@ 
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Example}
+  
+  Include two sets of dummy codes:
+  
+<<>>=
+out3 <- lm(price ~ mtOpt + front + rear, data = cDat)
+partSummary(out3, -c(1, 2))
+@ 
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}{Cell-Means Coding}
+  
+  If we include all $G$ dummy codes, we get a \emph{cell-means} coded model.
+  \begin{itemize}
+  \item Cell-means coding estimates the so-called \emph{normal means model}:
+    \begin{align*}
+      Y = \mu_g + \varepsilon
+    \end{align*}
+  \item We directly estimate each group-specific mean.
+    \vc
+  \item We cannot estimate an intercept when using cell-means coded predictors.
+  \end{itemize}
+  
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Example Cell-Means Code} 
+ Let's look at the cell-means coding of biological sex: 
+<<echo = FALSE, results = "asis">>=
+codes           <- model.matrix(~sex - 1)
+colnames(codes) <- c("female", "male")
+
+xTab2 <- xtable(data.frame(sex, codes), digits = 0)
+print(xTab2, booktabs = TRUE)
+@ 
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Example Cell-Means Codes} 
+ Now, cell-means for the drinks example: 
+<<echo = FALSE, results = "asis">>=
+codes           <- model.matrix(~drink - 1)
+colnames(codes) <- c("coffee", "juice", "tea")
+
+xTab3 <- xtable(data.frame(drink, codes), digits = 0)
+print(xTab3, booktabs = TRUE)
+@ 
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Using Cell-Means Codes}
+  
+  When using cell-means codes, we include all $G$ codes into our model, so we 
+  must not estimate an intercept:
+   \begin{align*}
+    Y &= \beta_1 X_{female} + \beta_2 X_{male} + \varepsilon\\[6pt]
+    Y &= \beta_1 X_{coffee} + \beta_2 X_{juice} + \beta_3 X_{tea} + \varepsilon
+   \end{align*}
+   \vx{-12}
+   \begin{itemize}
+   \item Each ``slope'' is an estimate of the group-specific mean of $Y$ in the 
+     coded group.
+     \vc
+   \item The significance tests for the ``slopes'' are testing if the 
+     group-specific means are different from zero.
+   \end{itemize}
+   
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}[fragile, allowframebreaks]{Example}
+  
+  First, an example with a two-level cell-means coded variable:
+
+<<>>=
+## Read in some data:
+cDat <- readRDS("../data/cars_data.rds")
+
+## Fit and summarize the model:
+out4 <- lm(price ~ atOnly + mtOpt - 1, data = cDat)
+
+## HACK: Add a new class attribute to dispatch 
+##       summary.cellMeans() in place of summary.lm():
+class(out4) <- c("cellMeans", class(out4))
+@ 
+
+\pagebreak
+
+<<>>=
+partSummary(out4, -c(1, 2))
+@ 
+
+\pagebreak
+  
+Fit a model with a three-level factor:
+
+<<>>=
+out5 <- lm(price ~ four + front + rear - 1, data = cDat)
+class(out5) <- c("cellMeans", class(out5))
+partSummary(out5, -c(1, 2))
+@ 
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}{Effects Coding}
+  
+  Another useful form of categorical variable coding is \emph{effects coding}.
+  \vc
+  \begin{itemize}
+  \item Effects codes can be \emph{weighted} or \emph{unweighted}.
+  \end{itemize}
+  \vb
+  \pause
+  We'll first discuss \emph{unweighted} effects codes.
+  \vc
+  \begin{itemize}
+  \item Unweighted effects codes are identical to dummy codes except that 
+    ``reference group'' rows get values of -1 on all codes.
+    \vc
+  \item The intercept is interpreted as the unweighted mean of the 
+    group-specific means of $Y$.
+    \vc
+  \item The slope associated with each code represents the difference between 
+    the coded group's mean of $Y$ and the mean of the group-specific means of 
+    $Y$.
+  \end{itemize}
+  
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}{Example Unweighted Effects Codes}
+  
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      
+<<echo = FALSE, results = "asis">>=
+male.ec <- male
+male.ec[sex == "female"] <- -1
+
+xTab4 <- xtable(data.frame(sex, male.ec), digits = 0)
+print(xTab4, booktabs = TRUE)
+@
+
+\end{column}
+    \begin{column}{0.5\textwidth}
+      
+<<echo = FALSE, results = "asis">>=
+codes2                      <- codes[ , -1]
+codes2[drink == "coffee", ] <- -1
+colnames(codes2)            <- c("juice.ec", "tea.ec")
+
+xTab5 <- xtable(data.frame(drink, codes2), digits = 0)
+print(xTab5, booktabs = TRUE)
+@
+
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}{Using Unweighted Effects Codes}
+  
+  We use the unweighted effects codes as we would use dummy codes.
+  \vc
+  \begin{itemize}
+  \item We include the $G - 1$ effects codes as $G - 1$ predictor variables in 
+    our regression model.
+    \begin{align*}
+      Y &= \beta_0 + \beta_1 X_{male.ec} + \varepsilon\\[6pt]
+      Y &= \beta_0 + \beta_1 X_{juice.ec} + \beta_2 X_{tea.ec} + \varepsilon
+    \end{align*}
+  \item The intercept corresponds to the unweighted mean of the group-specific 
+    means of $Y$.
+    \vc
+  \item Each slope represents the difference between the mean of $Y$ in the 
+    coded group and the mean of the group-specific means of $Y$.
+  \end{itemize}
+  
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}[fragile, allowframebreaks]{Example}
+  
+<<>>=
+## Model with single effects code:
+out6 <- lm(price ~ mtOpt.ec, data = cDat)
+partSummary(out6, -c(1, 2))
+@ 
+
+\pagebreak
+
+<<>>=
+## Model with two effects codes (for a variable with G = 3):
+out7 <- lm(price ~ front.ec + rear.ec, data = cDat)
+partSummary(out7, -c(1, 2))
+@ 
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}{Why is $\hat{\beta}_0$ the Unweighted Mean of $Y$?}
+  
+  First, define the group-specific means:
+  \begin{align*}
+    \hat{\mu}_1 &= \hat{\beta}_0 + \hat{\beta}_1 (1) \text{\hspace{7pt}} + 
+    \hat{\beta}_2 (0) \text{\hspace{6pt}} = \hat{\beta}_0 + \hat{\beta}_1\\
+    \hat{\mu}_2 &= \hat{\beta}_0 + \hat{\beta}_1 (0) \text{\hspace{7pt}} + 
+    \hat{\beta}_2 (1) \text{\hspace{6pt}} = \hat{\beta}_0 + \hat{\beta}_2\\
+    \hat{\mu}_3 &= \hat{\beta}_0 + \hat{\beta}_1 (-1) + \hat{\beta}_2 (-1) = 
+    \hat{\beta}_0 - \hat{\beta}_1 - \hat{\beta}_2
+  \end{align*}
+
+  \pause
+  
+  \begin{columns}[T]
+    \begin{column}{0.01\textwidth}
+    \end{column}
+    
+    \begin{column}{0.44\textwidth}
+      Next, solve for $\hat{\beta}_1$ and $\hat{\beta}_2$:
+      \begin{align*}
+        \hat{\beta}_1 &= \hat{\mu}_1 - \hat{\beta}_0\\
+        \hat{\beta}_2 &= \hat{\mu}_2 - \hat{\beta}_0\\
+      \end{align*}
+    \end{column}
+  
+    \pause
+    
+    \begin{column}{0.55\textwidth}
+      Finally, substitute and solve for $\hat{\beta}_0$:
+      \begin{align*}
+        \hat{\mu}_3 &= \hat{\beta}_0 - (\hat{\mu}_1 - \hat{\beta}_0) - (\hat{\mu}_2 - \hat{\beta}_0)\\
+        \hat{\mu}_3 &= 3\hat{\beta}_0 - \hat{\mu}_1 - \hat{\mu}_2\\
+        \hat{\beta}_0 &= \frac{\hat{\mu}_1 + \hat{\mu}_2 + \hat{\mu}_3}{3}
+      \end{align*}
+    \end{column}
+  \end{columns}
+  
+\end{frame}
+
+%------------------------------------------------------------------------------%
+  
+\begin{frame}{Weighted Effects Coding}
+  
+  Weighted effects codes differ from the unweighted version only in how they 
+  code the ``reference group'' rows. 
+  \vb
+  \begin{itemize}
+  \item In weighted effects codes the ``reference group'' rows get negative 
+    fractional values on all codes.
+    \vc
+    \begin{itemize}
+    \item Let $g = 1, 2, \ldots, G$ index groups.
+    \item Take the first group as the ``reference group.'' 
+    \item Then, the $g$th code's reference group rows will take values of 
+      $-N_g/N_1$.
+    \end{itemize}
+    \vb
+  \item The intercept is interpreted as the weighted mean of the group-specific 
+    outcome means.
+    \vc
+    \begin{itemize}
+    \item The arithmetic mean of $Y$.
+    \end{itemize}
+    \vc
+  \item Each slope represents the difference from that group's mean outcome and 
+    the overall mean of $Y$.
+  \end{itemize}
+  
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}{Example Weighted Effects Codes}
+  
+  \begin{columns}
+    \begin{column}{0.4\textwidth}
+      
+<<echo = FALSE, results = "asis">>=
+male.wec <- male
+male.wec[sex == "female"] <- "$-N_{male}/N_{female}$"
+
+xTab4 <- xtable(data.frame(sex, male.wec), digits = 0)
+print(xTab4, 
+      booktabs               = TRUE, 
+      scale                  = 0.8, 
+      sanitize.text.function = function(x){x})
+@
+
+\end{column}
+    \begin{column}{0.6\textwidth}
+      
+<<echo = FALSE, results = "asis">>=
+codes2                      <- codes[ , -1]
+codes2[drink == "coffee", 1] <- "$-N_{juice}/N_{coffee}$"
+codes2[drink == "coffee", 2] <- "$-N_{tea}/N_{coffee}$"
+colnames(codes2)            <- c("juice.wec", "tea.wec")
+
+xTab5 <- xtable(data.frame(drink, codes2), digits = 0)
+print(xTab5, 
+      booktabs               = TRUE, 
+      scale                  = 0.8,
+      sanitize.text.function = function(x){x})
+@
+
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}{Using Weighted Effects Codes}
+  
+  Weighted effects codes work the same way as all of our other codes.
+  \vb
+  \begin{itemize}
+  \item As before, we include the $G - 1$ effects codes as $G - 1$ predictor 
+    variables in our regression model.
+    \begin{align*}
+      Y &= \beta_0 + \beta_1 X_{male.wec} + \varepsilon\\[6pt]
+      Y &= \beta_0 + \beta_1 X_{juice.wec} + \beta_2 X_{tea.wec} + \varepsilon
+    \end{align*}
+  \item The intercept corresponds to the weighted mean of the group-specific 
+    means of $Y$ (i.e., the arithmetic average of $Y$).  
+    \vb
+  \item Each slope represents the difference between the coded group's mean of 
+    $Y$ and the overall mean of $Y$.
+  \end{itemize}
+  
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}[fragile, allowframebreaks]{Example}
+  
+<<>>=
+## Model with single effects code:
+out8 <- lm(price ~ mtOpt.wec, data = cDat)
+partSummary(out8, -c(1, 2))
+@ 
+
+\pagebreak
+
+<<>>=
+## Model with two effects codes (for a variable with G = 3):
+out9 <- lm(price ~ front.wec + rear.wec, data = cDat)
+partSummary(out9, -c(1, 2))
+@ 
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}[shrink = 5]{Why is $\hat{\beta}_0$ the Weighted Mean of $Y$?}
+  
+  \begin{columns}[T]
+    \begin{column}{0.4\textwidth}
+      
+      Define the group-specific means:
+      \begin{align*}
+        \hat{\mu}_1 &= \hat{\beta}_0 + \hat{\beta}_1 (1) \text{\hspace{20pt}} + 
+        \hat{\beta}_2 (0)\\[6pt]
+        \hat{\mu}_2 &= \hat{\beta}_0 + \hat{\beta}_1 (0) \text{\hspace{20pt}} + 
+        \hat{\beta}_2 (1)\\
+        \hat{\mu}_3 &= \hat{\beta}_0 + \hat{\beta}_1 \left( \frac{-N_1}{N_3} \right) + \hat{\beta}_2 \left( \frac{-N_2}{N_3} \right)
+      \end{align*}
+      
+      \pause
+      
+      Solve for $\hat{\beta}_1$ and $\hat{\beta}_2$:
+      \begin{align*}
+        \hat{\beta}_1 &= \hat{\mu}_1 - \hat{\beta}_0\\
+        \hat{\beta}_2 &= \hat{\mu}_2 - \hat{\beta}_0\\
+      \end{align*}
+    \end{column}
+    
+    \pause
+    
+    \begin{column}{0.6\textwidth}
+      Substitute and solve for $\hat{\beta}_0$:
+      \begin{align*}
+        \hat{\mu}_3 &= \hat{\beta}_0 + \left( \frac{-N_1}{N_3} \right) (\hat{\mu}_1 - \hat{\beta}_0) + \left( \frac{-N_2}{N_3} \right) (\hat{\mu}_2 - \hat{\beta}_0)\\[10pt]
+        \hat{\mu}_3 &= \frac{N_3}{N_3}\hat{\beta}_0 - \frac{N_1}{N_3}\hat{\mu}_1 + \frac{N_1}{N_3}\hat{\beta}_0 - \frac{N_2}{N_3}\hat{\mu}_2 + \frac{N_2}{N_3}\hat{\beta}_0\\[10pt]
+        \hat{\mu}_3 &= \frac{N_1 + N_2 + N_3}{N_3}\hat{\beta}_0 - \frac{N_1}{N_3}\hat{\mu}_1 - \frac{N_2}{N_3}\hat{\mu}_2\\[10pt]
+        N_3\hat{\mu}_3 &= (N_1 + N_2 + N_3)\hat{\beta}_0 - N_1\hat{\mu}_1 - N_2\hat{\mu}_2\\[10pt]
+        \hat{\beta}_0 &= \frac{N_1\hat{\mu}_1 + N_2\hat{\mu}_2 + N_3\hat{\mu}_3}{N_1 + N_2 + N_3}
+      \end{align*}
+    \end{column}
+  \end{columns}
+  
+\end{frame}
+
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}[fragile]{Significance Testing for Categorical Variables}
+  
+  For variables with only two levels, we can test the overall factor's 
+  significance by evaluating the significance of its single code.
+  \begin{itemize}
+  \item This won't work when we're using cell-means coding.
+  \item Cell-means coding will always produce two or more codes.
+  \end{itemize}
+ 
+<<>>=
+partSummary(out1, -c(1, 2))
+@
+  
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Significance Testing for Categorical Variables}
+  
+  For variables with more than two levels (or whenever using cell-means codes), 
+  we need to simultaneously evaluate the significance of all of the variable's 
+  codes.
+ 
+<<>>=
+partSummary(out3, -c(1, 2))
+@
+  
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Significance Testing for Categorical Variables}
+  
+<<>>=
+summary(out3)$r.squared - summary(out1)$r.squared
+anova(out1, out3)
+@
+  
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Significance Testing for Categorical Variables}
+  
+  What about models where a single nominal factor is the only predictor?
+
+<<>>=
+partSummary(out2, -c(1, 2))
+@
+  
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Significance Testing for Categorical Variables}
+  
+  We can compare back to an ``intercept-only'' model.
+  
+<<>>=
+out0 <- lm(price ~ 1, data = cDat)
+partSummary(out0, -1)
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Significance Testing for Categorical Variables}
+
+<<>>=
+r2Diff <- summary(out2)$r.squared - summary(out0)$r.squared
+r2Diff
+anova(out0, out2)
+@ 
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Significance Testing for Categorical Variables}
+ 
+  We don't actually need to do the explicit model comparison, though.
+  
+<<>>=
+r2Diff
+summary(out2)$r.squared
+
+anova(out0, out2)[2, "F"]
+summary(out2)$fstatistic[1]
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Compare Codings}
+  
+  Let's dig into some numerical properties of the three coding schemes.
+  
+<<>>=
+## Fit models using all four codings:
+dcOut  <- lm(price ~ front + rear,            data = cDat)
+cmOut  <- lm(price ~ four + front + rear - 1, data = cDat)
+ecOut  <- lm(price ~ front.ec + rear.ec,      data = cDat)
+wecOut <- lm(price ~ front.wec + rear.wec,    data = cDat)
+
+## Compute group-specific means of 'price':
+grpMeans <- tapply(cDat$price, cDat$dr, mean)
+@ 
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{}
+Compare the parameter estimates to their theoretical equivalents:
+<<size = 'scriptsize'>>=
+coef(dcOut)[1] - grpMeans["4WD"]
+coef(cmOut) - grpMeans
+coef(ecOut)[1] - mean(grpMeans)
+coef(wecOut)[1] - mean(cDat$price)
+@
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{}
+  Compare the $R^2$ values from each coding scheme:
+<<>>=
+summary(dcOut)$r.squared
+summary.cellMeans(cmOut)$r.squared
+summary(ecOut)$r.squared
+summary(wecOut)$r.squared
+@ 
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{}
+Compare the F-statistics:
+<<>>=
+summary(dcOut)$fstatistic
+summary.cellMeans(cmOut)$fstatistic
+summary(ecOut)$fstatistic
+summary(wecOut)$fstatistic
+@ 
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{}
+Compare the residual standard errors:
+<<>>=
+summary(dcOut)$sigma
+summary.cellMeans(cmOut)$sigma
+summary(ecOut)$sigma
+summary(wecOut)$sigma
+@ 
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}[allowframebreaks]{Choosing a Coding Scheme}
+  
+  Any valid coding scheme will represent the information in the categorical 
+  variable equally well.
+  \vc
+  \begin{itemize}
+  \item All valid coding schemes produce equivalent models. 
+  \end{itemize}
+  \vb
+  We choose a particular coding scheme based on the interpretations that we 
+  want.
+  \vc
+  \begin{itemize}
+  \item Dummy coding is useful with a meaningful reference group.
+    \begin{itemize}
+    \item Control group in an experiment
+    \item An ``industry standard'' or benchmark implementation of some feature
+    \end{itemize}
+    \vc
+  \item Dummy coding is also preferred if we don't care about interpretation.
+    \begin{itemize}
+    \item Dummy codes are the simplest to construct.
+    \end{itemize}
+    
+    \pagebreak
+    
+  \item Cell-means coding is useful when you want to directly test for non-zero 
+    means within each group.
+    \begin{itemize}
+    \item The interpretation of cell-means effects is probably the most 
+      intuitive of any coding scheme, as well.
+    \end{itemize}
+    \vc
+  \item Weighted effects codes are good when you believe your sample is 
+    representative of the population.
+    \begin{itemize}
+    \item Larger groups should be weighted more heavily in the model.
+      \vc
+    \item Parameter estimates will correctly generalize to the population.
+    \end{itemize}
+    
+    \pagebreak
+    
+  \item Unweighted effects codes are good when the group sizes in your sample do
+    not generalize to the population.
+    \begin{itemize}
+    \item Convenience samples, for example, are usually not representative.
+      \vc
+    \item When your sample is not representative, larger groups should not be 
+      weighted more heavily.
+      \vc
+    \item Unweighted effects codes are ``agnostic'' to differing group sizes.
+      \begin{itemize}
+      \item We need to be careful with very small groups.
+      \end{itemize}
+    \end{itemize}
+    \vc
+  \item Weighted effects codes with known weights are another option.
+  \end{itemize}
+  
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{Conclusion}
+  
+  When we use categorical predictors, they must be coded before entering the 
+  model.
+  \vc
+  \begin{itemize}
+  \item We discussed four of the most popular coding schemes:
+    \begin{enumerate}
+    \item Dummy coding
+    \item Cell-means coding
+    \item Unweighted effects coding
+    \item Weighted effects coding
+    \end{enumerate}
+    \vc
+  \item Apart from cell-means, these coding schemes differ primarily in how the 
+    ``reference'' group is defined.
+  \end{itemize}
+  \vc
+  All valid coding schemes produce equivalent models.
+  \begin{itemize} 
+    \item We choose a particular scheme for interpretational convenience.
+  \end{itemize}
+  
+\end{frame}
+
+\comment{
+\begin{frame}[allowframebreaks]{References}
+  
+  \bibliographystyle{apacite}
+  \bibliography{../../../literature/bibtexStuff/statMethRefs.bib}
+  
+\end{frame}
+}
+
+%------------------------------------------------------------------------------%
+
+\end{document}
+
