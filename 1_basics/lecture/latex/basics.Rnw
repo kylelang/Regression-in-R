@@ -1,4 +1,4 @@
-%%% Title:    Basics of Linear Regression
+%%% Title:    Regression in R 1: Linear Regression Basics
 %%% Author:   Kyle M. Lang
 %%% Created:  2018-04-12
 %%% Modified: 2022-01-10
