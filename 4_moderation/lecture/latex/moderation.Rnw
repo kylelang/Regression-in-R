@@ -1,85 +1,70 @@
-%%% Title:    DSS Stats & Methods: Lecture 8
+%%% Title:    Regression in R 5: Moderation
 %%% Author:   Kyle M. Lang
 %%% Created:  2017-09-12
-%%% Modified: 2020-09-24
+%%% Modified: 2022-01-13
 
-\documentclass{beamer}
-\usetheme[%
-  pageofpages          = of,
-  bullet               = circle,
-  titleline            = true,
-  alternativetitlepage = true,
-  titlepagelogo        = Logo3,
-  watermark            = watermarkTiU,
-  watermarkheight      = 100px,
-  watermarkheightmult  = 4%
-]{UVT}
+\documentclass[10pt]{beamer}
+\usetheme{Utrecht}
 
 \usepackage{graphicx}
-\usepackage{booktabs}
 \usepackage[natbibapa]{apacite}
 \usepackage[libertine]{newtxmath}
 \usepackage{fancybox}
+\usepackage{booktabs}
 \usepackage{caption}
 
-%% Ensure styles of `blocks' (used in Definitions, Theorems etc.) follows the
-%% UVT-style theme:
-\setbeamercolor{block title}{fg = darkblue, bg = white}
-\setbeamercolor{block body}{use = block title, bg = block title.bg}
-
-%% Ensure TableOfContents is in UVT-style theme:
-\setbeamercolor{section in toc}{fg = darkblue}
-
-\title{Moderation, Interactions, and Polynomials}
-\subtitle{Statistics \& Methodology Lecture 8}
+\title{Moderation}
+\subtitle{Utrecht University Winter School: Regression in R}
 \author{Kyle M. Lang}
-\institute{Department of Methodology \& Statistics\\Tilburg University}
-\date{}
+\institute{Department of Methodology \& Statistics\\Utrecht University}
+\date{2022-02-02}
+
+% Don't use any labeling for table captions
+\captionsetup{labelformat = empty}
+
+%------------------------------------------------------------------------------%
 
 \begin{document}
 
-<<setup, include=FALSE>>=
+<<setup, include=FALSE, cache = FALSE>>=
 set.seed(235711)
 
 library(knitr)
 library(ggplot2)
 library(MASS)
-library(lattice)
-library(xtable)
 library(DAAG)
+library(xtable)
 library(MLmetrics)
 
 source("../../../code/supportFunctions.R")
 
-dataDir <- "../data/"
+dataDir <- "../../../data/"
 
 options(width = 60)
-opts_chunk$set(size = 'footnotesize', fig.align = 'center')
+opts_chunk$set(size = "footnotesize",
+               fig.align = "center",
+               fig.path = "figure/moderation-",
+               message = FALSE,
+               warning = FALSE,
+               comment = "")
 knit_theme$set('edit-kwrite')
-
-lightBlue <- rgb(0, 137, 191, max = 255)
-midBlue   <- rgb(0, 131, 183, max = 255)
-darkBlue  <- rgb(0, 128, 179, max = 255)
-deepGold  <- rgb(184, 138, 45, max = 255)
-lightGold <- rgb(195, 146, 48, max = 255)
 @
 
+%------------------------------------------------------------------------------%
 
-\begin{frame}[t,plain]
-\titlepage
+\begin{frame}[t, plain]
+  \titlepage
 \end{frame}
 
 %------------------------------------------------------------------------------%
 
 \begin{frame}{Outline}
-
-  \begin{enumerate}
-  \item Testing for moderation with MLR models
-    \va
-  \item Polynomial regression
-  \end{enumerate}
-  
+  \tableofcontents  
 \end{frame}
+
+%------------------------------------------------------------------------------%
+
+\section{Moderation}
 
 %------------------------------------------------------------------------------%
 
@@ -226,6 +211,10 @@ lightGold <- rgb(195, 146, 48, max = 255)
 
 %------------------------------------------------------------------------------%
 
+\subsection{Testing Moderation}
+
+%------------------------------------------------------------------------------%
+
 \begin{frame}{Testing Moderation}
   Now, we have an estimable regression model that quantifies the linear 
   moderation we hypothesized.
@@ -298,7 +287,7 @@ lightGold <- rgb(195, 146, 48, max = 255)
 \begin{frame}[fragile]{Example}
 
 <<echo = FALSE>>=
-dDat <- readRDS("../data/diabetes.rds")
+dDat <- readRDS(paste0(dataDir, "diabetes.rds"))
 @ 
 
 <<>>=
@@ -332,6 +321,10 @@ partSummary(out2, -c(1, 2))
 @
 
 \end{frame}
+
+%------------------------------------------------------------------------------%
+
+\section{Probing Interactions}
 
 %------------------------------------------------------------------------------%
 
@@ -575,7 +568,7 @@ p2 + scale_colour_manual(name = "", values = c("Mean LDL" = "black",
   
 \end{frame}
 
-\watermarkoff %----------------------------------------------------------------%
+%------------------------------------------------------------------------------%
 
 \begin{frame}[fragile]{Example}
 
@@ -591,7 +584,7 @@ dDat$zLo  <- dDat$ldl - (zMean - zSD)
 
 \end{frame}
 
-%------------------------------------------------------------------------------%
+\watermarkoff %----------------------------------------------------------------%
 
 \begin{frame}[fragile]{Example}
 
@@ -637,7 +630,6 @@ The estimated slope for \texttt{bmi}, $\hat{\beta}_1 =
 
 %------------------------------------------------------------------------------%
 
-\captionsetup{labelformat=empty}
 \begin{frame}{Compare Approaches}
   
   The manual and the centering approaches give identical answers, barring 
@@ -703,360 +695,12 @@ print(seTab, booktabs = TRUE)
 @
 
 \end{frame}
-\captionsetup{labelformat=default}
 
 \watermarkon %-----------------------------------------------------------------%
 
-\begin{frame}{Alternative Probing Strategies}
-  
-  Simple slopes analysis is nice due to its simplicity and ease of
-  interpretation, but the $Z$ values we choose are totally arbitrary.
-  \vc
-  \begin{itemize}
-  \item We may be missing important nuances that occur in areas of $Z$'s 
-    distribution that we \emph{did not} pick.
-  \end{itemize}
-  \vb
-  \pause
-  The \emph{Johnson-Neyman} technique is an alternative approach that removes 
-  the arbitrary selection of conditional $Z$ values.
-  \vc
-  \begin{itemize}
-  \item Johnson-Neyman finds the \emph{region of significance} wherein the 
-    conditional effect of $X$ on $Y$ is statistically significant.
-    \vc
-  \item Johnson-Neyman inverts the logic of simple slopes analysis to find what 
-    cut-points on the moderator correspond to a critical $t$ value for the 
-    conditional effect.
-  \end{itemize}
-  
-\end{frame}
+\section{Categorical Moderators}
 
 %------------------------------------------------------------------------------%
-
-\begin{frame}{Johnson-Neyman Technique}
-  
-  With simple slopes analysis, we:
-  \vb
-  \begin{enumerate}
-    \item Choose a conditional value of $Z$, say $Z_1$.
-      \vb
-    \item Calculate the simple slope, $\hat{f}(Z_1)$, and standard error, 
-      $SE_{f(Z_1)}$, associated with $Z_1$.
-      \vb
-    \item Test $\hat{f}(Z_1)$ for significance via a simple Wald-type test:
-      \begin{align}
-        \hat{t} = \frac{\hat{f}(Z_1)}{SE_{f(Z_1)}} \label{waldEq}
-      \end{align}
-  \end{enumerate}
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}{Johnson-Neyman Technique}
-  
-  With Johnson-Neyman, we:
-  \vb
-  \begin{enumerate}
-  \item Choose an $\alpha$ level for our test.
-    \begin{itemize}
-    \item Use $\{\alpha, df\}$ to define a critical $t$-value
-      \begin{itemize}
-      \item E.g., $\alpha = 0.05$ and $df = 438$ $\Rightarrow$ $t_{crit} = 1.97$
-      \end{itemize}
-    \end{itemize}
-    \vb
-  \item Replace $\hat{t}$ in Equation \ref{waldEq} with $t_{crit}$ and re-arrange 
-    into the following quadratic form:
-    \begin{align}
-      t_{crit}^2 SE_{f(Z)}^2 - \hat{f}^2(Z) = 0 \label{quadEq}
-    \end{align}
-  \item Solve Equation \ref{quadEq} to find the two values of $Z$ (i.e., the 
-    roots) that produce critical $t$ statistics for the simple slope.
-  \end{enumerate}
-  
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}{Deriving Equation \ref{quadEq}}
-  
-  Recall the definitions of $\hat{f}(Z)$ and $SE_{f(Z)}$:
-  \begin{align*}
-    \hat{f}(Z) &= \hat{\beta}_1 + \hat{\beta}_3Z,\\[10pt]
-    SE_{f(Z)} &= \sqrt{SE_{\beta_1}^2 + 2Z \cdot \text{COV}(\beta_1, \beta_3) + Z^2 SE_{\beta_3}^2}.
-  \end{align*}
-  So, our starting point is:
-  \begin{align}
-    t_{crit} = \frac{\hat{\beta}_1 + \hat{\beta}_3Z}{\sqrt{SE_{\beta_1}^2 + 2Z \cdot \text{COV}(\beta_1, \beta_3) + Z^2 SE_{\beta_3}^2}}. \label{tEq0}
-  \end{align}
-  
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}{Deriving Equation \ref{quadEq}}
-  
-  Square both sides of Equation \ref{tEq0} to get:
-  \begin{align}
-    t_{crit}^2 = \frac{\hat{\beta}_1^2 + 2\hat{\beta}_1\hat{\beta}_3Z + \hat{\beta}_3^2Z^2}{SE_{\beta_1}^2 + 2Z \cdot \text{COV}(\beta_1, \beta_3) + Z^2 SE_{\beta_3}^2}. \label{t2Eq}
-    \end{align}
-  Lastly, move all terms in Equation \ref{t2Eq} to the left-hand side and 
-  simplify to get the final quadratic form:
-  \begin{align*}
-    \left( t_{crit}^2 SE_{\beta_3}^2 - \hat{\beta}_3^2 \right) Z^2 +
-    \left( 2t_{crit}^2 \text{COV}(\beta_1, \beta_3) - 2 \hat{\beta}_1 \hat{\beta}_3 \right) Z +
-    \left( t_{crit}^2 SE_{\beta_1}^2 - \hat{\beta}_1^2 \right) = 0.
-  \end{align*}
-  
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}{Solving Equation \ref{quadEq}}
-  
-  Given our final quadratic equation:
-  \begin{align*}
-    \left( t_{crit}^2 SE_{\beta_3}^2 - \hat{\beta}_3^2 \right) Z^2 +
-    \left( 2t_{crit}^2 \text{COV}(\beta_1, \beta_3) - 2 \hat{\beta}_1 \hat{\beta}_3 \right) Z +
-    \left( t_{crit}^2 SE_{\beta_1}^2 - \hat{\beta}_1^2 \right) = 0,
-  \end{align*}
-  we find our solutions by taking:
-  \begin{align*}
-    a &= t_{crit}^2 SE_{\beta_3}^2 - \hat{\beta}_3^2,\\[8pt]
-    b &= 2t_{crit}^2 \text{COV}(\beta_1, \beta_3) - 2 \hat{\beta}_1 \hat{\beta}_3,\\[8pt]
-    c &= t_{crit}^2 SE_{\beta_1}^2 - \hat{\beta}_1^2,
-  \end{align*}
-  and applying the quadratic formula:
-  \begin{align*}
-    x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}.
-  \end{align*}
-  
-\end{frame}
-    
-\watermarkoff %----------------------------------------------------------------%
-
-\begin{frame}[fragile, allowframebreaks]{Example}
-  
-<<>>=
-## Estimate model:
-out <- lm(bp ~ bmi*ldl, data = dDat)
-
-## Get (squared) critical value of t:
-t2 <- qt(0.975, df = out$df.residual)^2
-
-## Extract pertinent elements from the asymptotic 
-## covariance matrix:
-aCov <- vcov(out)
-v1   <- diag(aCov)["bmi"]
-v3   <- diag(aCov)["bmi:ldl"]
-cv   <- aCov["bmi", "bmi:ldl"]
-
-## Extract pertinent slope coefficients:
-b1 <- coef(out)["bmi"]
-b3 <- coef(out)["bmi:ldl"]
-@ 
-
-\pagebreak
-
-<<>>=
-## Compute coefficients of the quadratic equation:
-a <- as.numeric(t2 * v3 - b3^2)
-b <- as.numeric(2 * t2 * cv - 2 * b1 * b3)
-c <- as.numeric(t2 * v1 - b1^2)
-
-## Compute roots:
-myRoots <- c(
-(-b + sqrt(b^2 - 4 * a * c)) / (2 * a),
-(-b - sqrt(b^2 - 4 * a * c)) / (2 * a)
-)
-
-myRoots
-@ 
-
-\end{frame}
-
-\watermarkon %-----------------------------------------------------------------%
-
-\begin{frame}{Interpreting Johnson-Neyman}
-  
-  The roots produced by the Johnson-Neyman technique delineate the
-  \emph{region of significance}.  
-  \vb
-  \begin{itemize}
-  \item The conditional effect of $X$ on $Y$ is either significant everywhere 
-    inside or outside of the interval defined by these two points.  
-    \vb
-  \item If only one of the points falls within the observed range of $Z$, ignore 
-    the other point. 
-    \vc
-    \begin{itemize}
-    \item In this case, the region of significance is either everywhere above or 
-      everywhere below the legal root.
-    \end{itemize}
-    \vb
-  \item If neither of the roots fall within the observed range of $Z$, then you 
-    are in one of two cases:
-    \vc
-    \begin{enumerate}
-    \item The focal effect is significant across the entire range of $Z$. 
-      \vc
-    \item The focal effect is not significant anywhere within the range of $Z$.
-    \end{enumerate}
-  \end{itemize}
-  
-\end{frame}
-
-\watermarkoff %----------------------------------------------------------------%
-
-\begin{frame}[fragile]{Interpreting Johnson-Neyman}
-  
-<<>>=
-myRoots
-partSummary(out2, -c(1, 2))
-@ 
-
-\end{frame}
-
-\watermarkon %-----------------------------------------------------------------%
-
-\begin{frame}{Perspectives on Simple Slopes}
-  
-  Recall the formula for a simple slope:
-  \begin{align*}
-    f(Z) = \beta_1 + \beta_3Z
-  \end{align*}
-  \vc We can think about working with $f(Z)$ in, at least, two different ways:
-  \vb
-  \begin{enumerate}
-  \item Treat $f(Z)$ as a weight for $X$ that we can use to evaluate the effect 
-    of $X$ on $Y$ at different (discrete) levels of $Z$.
-    \vb
-  \item Consider how $f(Z)$, itself, changes as $Z$ (continuously) changes.  
-  \end{enumerate}
-  \vb
-  The first option gives rise to simple slopes analysis while the second 
-  embodies the spirit of Johnson-Neyman.
-  
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}{Confidence Bands}
-  
-  A natural quantity to consider is a confidence interval for $\hat{f}(Z)$:
-  \begin{align*}
-    CI = \hat{f}(Z) \pm t_{crit} \times SE_{f(Z)}
-  \end{align*}
-  \vx{-16}
-  \begin{itemize}
-  \item We can easily computed such intervals for the interesting values of $Z$ 
-    that we chose for the simple slopes analysis.
-  \end{itemize}
-  \pause
-  \vb
-  When doing Johnson-Neyman, we can compute the pointwise values of the $CI$ for
-  the entire range of $Z$.  
-  \vb
-  \begin{itemize}
-  \item Interpolating between these pointwise CIs produces \emph{confidence 
-    bands} for $\hat{f}(Z)$.
-    \vc
-    \begin{itemize}
-    \item With these confidence bands, we can immediately check any value of $Z$ 
-      for a significant simple slope.
-    \end{itemize}
-  \end{itemize}
-  
-\end{frame}
-
-\watermarkoff %----------------------------------------------------------------%
-  
-\begin{frame}[fragile, allowframebreaks]{Example}
-  
-  Implementing the Johnson-Neyman technique by hand is a pain, but we can easily 
-  do so by using the \textbf{rockchalk} package in \textsf{R}.\\ 
-  
-  \vb
-  
-<<message = FALSE, out.width = "65%">>=
-library(rockchalk)
-
-## First we need to create a 'plotSlopes' object:
-plotOut <- plotSlopes(model      = out2,
-                      plotx      = "bmi",
-                      modx       = "ldl",
-                      plotPoints = FALSE)
-@ 
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}[fragile]{Example}
-
-  We conduct the Johnson-Neyman test by using the \texttt{testSlopes} function 
-  to modify the ``plotSlopes'' object:
-  
-<<>>= 
-## Implement the J-N test:
-wrap(testOut <- testSlopes(plotOut))
-
-## Extract the significance boundaries:
-testOut$jn$roots
-@
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-  
-\begin{frame}[fragile]{Example}
-
-  \begin{columns}
-    \begin{column}{0.35\textwidth}
-      
-      Finally, we can plot the result:
-      
-<<eval = FALSE>>= 
-plot(testOut)
-@
-
-\end{column}
-\begin{column}{0.65\textwidth}
-  
-<<echo = FALSE, results = "asis">>=
-plot(testOut)
-@ 
-
-\end{column}
-\end{columns}
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\captionsetup{labelformat = empty}
-\begin{frame}{Compare Implementations}
-  
-  As expected, we get the same answers from our manual solution and from the 
-  \textbf{rockchalk} implementation.
-  
-<<echo = FALSE, results = "asis">>=
-tab <- matrix(c(myRoots, testOut$jn$roots), 
-              ncol     = 2, 
-              byrow    = TRUE,
-              dimnames = list(c("Manual", "Rockchalk"), c("Low", "High"))
-              )
-print(xtable(tab, caption = "Johnson-Neyman Roots"), 
-      booktabs = TRUE, 
-      digits   = 3)
-@ 
-
-\end{frame}
-\captionsetup{labelformat = default}
-
-\watermarkon %-----------------------------------------------------------------%
 
 \begin{frame}{Categorical Moderators}
   
@@ -1215,418 +859,10 @@ p4 + geom_abline(slope     = coef(out66)["tangiblesat"],
 
 \watermarkon %-----------------------------------------------------------------%
 
-\begin{frame}{}
-  
-  \begin{center}
-    \Huge{\textsc{Polynomial Regression}}
-  \end{center}
-  
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}{Polynomial Regression}
-  
-  Polynomial regression simply incorporates powered transformations of the
-  predictors into the model.
-  \vb
-  \begin{itemize}
-  \item Polynomial terms (i.e., power terms) model curvature in the
-    relationships.
-  \end{itemize}
-  \va
-  We can think about polynomial terms as interactions between a predictor and 
-  itself.
-  \vb
-  \begin{itemize}
-  \item Many of the rules that apply to interactions transfer directly to
-    polynomials.
-  \end{itemize}
-  
-\end{frame}
-
-\watermarkoff %----------------------------------------------------------------%
-
-\begin{frame}{Polynomial Visualization}
-  
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-      We may hypothesize a curvilinear relationship between $X$ and $Y$.
-    \end{column}
-    
-    \begin{column}{0.5\textwidth}
-      
-<<echo = FALSE>>=
-p5 <- ggplot(data = Cars93, mapping = aes(x = Horsepower, y = MPG.city)) +
-    theme_classic()
-p6 <- p5 + geom_point() +
-    theme(text = element_text(family = "Courier", size = 16))
-p6 + xlab("Horsepower") + ylab("MPG") + ylim(c(10, 50))
-@ 
-
-\end{column}
-\end{columns}
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}{Polynomial Visualization}
-  
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-      Polynomials are one way to model curvilinear relationships.
-      \vb
-      \begin{itemize}  
-      \item {\color{blue}$\hat{Y}_{mpg} = \hat{\beta}_0 + \hat{\beta}_1 X_{hp}$}
-        \vb
-      \item {\color{red}$\hat{Y}_{mpg} = \hat{\beta}_0 + \hat{\beta}_1 X_{hp} + 
-        \hat{\beta}_2 X_{hp}^2$}
-        \vb
-      \item {\color{violet}$\hat{Y}_{mpg} = \hat{\beta}_0 + \hat{\beta}_1 X_{hp} + 
-        \hat{\beta}_2 X_{hp}^2 + \hat{\beta}_3 X_{hp}^3$}
-      \end{itemize}
-    \end{column}
-    
-    \begin{column}{0.5\textwidth}
-      
-<<echo = FALSE>>=
-p6 + geom_smooth(method = "lm", formula = y ~ x, se = FALSE) + 
-    geom_smooth(method  = "lm", 
-                formula = y ~ x + I(x^2), 
-                se      = FALSE, 
-                colour  = "red") +
-    geom_smooth(method  = "lm", 
-                formula = y ~ x + I(x^2) + I(x^3), 
-                se      = FALSE, 
-                colour  = "purple") +
-    xlab("Horsepower") + 
-    ylab("MPG") +
-    ylim(c(10, 50))
-@ 
-
-\end{column}
-\end{columns}
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}[fragile, allowframebreaks]{Example}
-
-<<>>=
-## Attach the data:
-data(Cars93)
-
-## Fit the linear model:
-out6 <- lm(MPG.city ~ Horsepower, data = Cars93)
-
-## Fit the quadratic model:
-out7 <- lm(MPG.city ~ Horsepower + I(Horsepower^2), 
-           data = Cars93)
-@ 
-
-\pagebreak
-
-<<>>=
-partSummary(out6, -c(1, 2))
-@ 
-  
-\begin{itemize}
-\item For each unit increase in horsepower, the expected change in fuel economy 
-  is $\hat{\beta}_1 = \Sexpr{round(coef(out6)["Horsepower"], 4)}$ units.
-\end{itemize}
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}[fragile]{Example}
-
-<<>>=
-partSummary(out7, -c(1, 2))
-@ 
-\vx{-6}
-\begin{itemize}
-\item Extrapolating from powerless cars, each unit increase in 
-  horsepower, is expected to change fuel economy by $\hat{\beta}_1 = 
-  \Sexpr{round(coef(out7)["Horsepower"], 4)}$ units.
-  \vc
-\item For a unit increase in horsepower, the effect of horsepower on fuel 
-  economy is expected to increase by $\hat{\beta}_2 = 
-  \Sexpr{round(coef(out7)["I(Horsepower^2)"], 6)}$ units.
-\end{itemize}
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}[fragile, allowframebreaks]{Example}
-
-Does adding the quadratic term explain a significantly larger proportion of
-variability?
-<<>>=
-anova(out6, out7)
-@ 
-
-\pagebreak
-
-Does adding the quadratic term reduce prediction error?
-<<>>=
-cv.lm(data   = Cars93, 
-      models = c(formula(out6), formula(out7)), 
-      K      = 5,
-      names  = c("line", "quad")
-      )
-@ 
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}{Effects of Centering}
-  
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-      
-<<echo = FALSE>>=
-cenPlot8(center = 0, xLab = "Horsepower")
-@
-
-\end{column}
-    
-    \begin{column}{0.5\textwidth}
-      
-<<echo = FALSE>>=
-cenPlot8(center = mean(Cars93$Horsepower), xLab = "Centered Horsepower")
-@ 
-
-\end{column}
-\end{columns}
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-    
-\begin{frame}{Effects of Centering}
-  
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-      
-<<echo = FALSE>>=
-cenPlot8(center = 0, xLab = "Horsepower", linSlope = TRUE)
-@
-
-\end{column}
-    
-    \begin{column}{0.5\textwidth}
-      
-<<echo = FALSE>>=
-cenPlot8(center   = mean(Cars93$Horsepower), 
-         xLab     = "Centered Horsepower", 
-         linSlope = TRUE)
-@ 
-
-\end{column}
-\end{columns}
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}[fragile]{Example}
-
-<<>>=
-## Mean center horsepower:
-Cars93$HorsepowerMC <- 
-    with(Cars93, Horsepower - mean(Horsepower))
-
-## Fit the quadratic model:
-out8 <- lm(MPG.city ~ HorsepowerMC + I(HorsepowerMC^2), 
-           data = Cars93)
-@ 
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}[fragile]{Example}
-
-<<>>=
-partSummary(out8, -c(1, 2))
-@ 
-\vx{-6}
-\begin{itemize}
-\item Averaging over cars, each unit increase in horsepower, is expected to 
-  change fuel economy by $\hat{\beta}_1 = 
-  \Sexpr{round(coef(out8)["HorsepowerMC"], 4)}$ units.
-  \vc
-\item For a unit increase in horsepower, the effect of horsepower on fuel 
-  economy is expected to increase by $\hat{\beta}_2 = 
-  \Sexpr{round(coef(out8)["I(HorsepowerMC^2)"], 6)}$ units.
-\end{itemize}
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}[fragile]{Choosing an ``Optimal'' Polynomial Order}
-  
-  We can use K-fold cross-validation to estimate which polynomial order will 
-  give us the lowest prediction error.
-<<>>=
-cv.lm(data   = Cars93, 
-      models = polyList(y = "MPG.city", 
-                        x = "Horsepower", 
-                        n = 5),
-      K      = 5,
-      names  = c("line", "quad", "cube", "quart", "quint")
-      )
-@ 
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}{Visualize the Best Model}
-  
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-      
-      The cubic model produced the lowest cross-validation error.
-      \vc
-      \begin{itemize}
-      \item $\hat{Y}_{mpg} = +\hat{\beta}_1 X_{hp} + \hat{\beta}_2 X_{hp}^2 + \hat{\beta}_3 X_{hp}^3$
-      \item We should be cautious.
-        \vc
-        \begin{itemize}
-        \item We have very few data.
-          \vc
-        \item The few cases in the tails are strongly influencing the curve.
-        \end{itemize}
-      \end{itemize}
-      
-    \end{column}
-    
-    \begin{column}{0.5\textwidth}
-      
-<<echo = FALSE>>=
-p6 + geom_smooth(method  = "lm", 
-                 formula = y ~ x + I(x^2) + I(x^3), 
-                 se      = FALSE, 
-                 colour  = "blue") +
-    xlab("Horsepower") + 
-    ylab("MPG") +
-    ylim(c(10, 50))
-@ 
-
-\end{column}
-\end{columns}
-
-\end{frame}
-
-\watermarkon %-----------------------------------------------------------------%
-
-\begin{frame}[allowframebreaks]{Conclusion}
-  
-  \begin{itemize}
-  \item \emph{Moderation} is a specific type of hypothesis.
-    \vc
-    \begin{itemize}
-    \item The effect of one variable on the outcome (i.e., the focal effect) 
-      changes as a function of some third variable (i.e., the moderator).
-    \end{itemize}
-    \vb
-  \item We test for significant moderation by modeling \emph{interaction} terms.
-    \vc
-    \begin{itemize}
-    \item If the slope associated with an interaction term is statistically 
-      significant, we infer significant moderation.
-    \end{itemize}
-    \vb
-  \item A significant interaction term only tells us that the focal effect is 
-    dependent upon the moderator.
-    \vc
-    \begin{itemize}
-    \item We must usually probe significant interactions to get any real insight 
-      into the patterns of moderation.
-    \end{itemize}
-    
-    \pagebreak
-    
-  \item We can probe an interaction by testing specific simple slopes.
-    \vc
-    \begin{itemize}
-    \item \emph{Simple slopes} analysis
-    \end{itemize}
-    \vb
-  \item We can also probe an interaction by finding the region of the 
-    moderator's distribution wherein the focal effect is significant.
-    \vc
-    \begin{itemize}
-    \item \emph{Johnson-Neyman} approach
-    \end{itemize}
-    \vb
-  \item Categorical moderators imply group-specific focal effects.
-    \vc
-    \begin{itemize}
-    \item We use simple slopes analysis to probe categorical moderation.
-      \vc
-    \item Johnson-Neyman doesn't make any sense with discrete moderators.
-    \end{itemize}
-  
-  \pagebreak
-  
-  \item When we include interactions in our model, the first-order effects of 
-    variables involved in the interactions become \emph{conditional effects}.
-    \vc
-    \begin{itemize}
-    \item Conditional effects must be interpreted at the point where the other 
-      predictor involved in the interaction is equal to zero.
-    \end{itemize}
-    \vb
-  \item We can use the interpretation of conditional effects to our advantage 
-    when testing simple slopes.
-    \vc
-    \begin{itemize}
-    \item Center the moderator on a conditional value and re-run the model.
-      \vc
-    \item The estimated focal effect is a simple slope.
-    \end{itemize}
-  
-    \pagebreak
-    
-  \item Polynomial regression models curvilinear trends.
-    \vc
-    \begin{itemize}
-    \item Each unit increase in the order of the polynomial adds another bend to
-      the curve.
-    \end{itemize}
-    \vb
-  \item We can think of polynomials as interactions between the focal predictor 
-    and itself.
-    \vc
-    \begin{itemize}
-    \item Centering the focal predictors is especially important for 
-      interpretation in polynomial regression.
-    \end{itemize}
-    \vb
-  \item We need to be very cautious and constantly watch for overfitting when 
-    using polynomial regression.
-    \vc
-    \begin{itemize}
-    \item Even proper cross-validation may not protect us with small samples.
-    \end{itemize}
-  \end{itemize}
-  
-\end{frame}
-  
-%------------------------------------------------------------------------------%
-
 \begin{frame}[allowframebreaks]{References}
 
   \bibliographystyle{apacite}
-  \bibliography{../../../literature/bibtexFiles/statMethRefs.bib}
+  \bibliography{../../../literature/bibtex/statMethRefs.bib}
 
 \end{frame}
 
