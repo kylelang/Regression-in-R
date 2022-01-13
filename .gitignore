@@ -38,9 +38,10 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-# Emacs auto-save stuff
+# Auto-save stuff
 *~
 *.R#
+.#*
 
 # Knitr figure directory
 /figure/
