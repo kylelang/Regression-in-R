@@ -9,7 +9,6 @@
 \usepackage{graphicx}
 \usepackage[natbibapa]{apacite}
 \usepackage[libertine]{newtxmath}
-%\usepackage{fancybox}
 \usepackage{booktabs}
 \usepackage{relsize}
 
@@ -36,8 +35,11 @@ library(DAAG)
 library(xtable)
 library(MLmetrics)
 library(dplyr)
+library(car)
 
 source(paste0(codeDir, "supportFunctions.R"))
+
+data(Cars93)
 
 options(width = 60)
 opts_chunk$set(size = "footnotesize",
@@ -202,21 +204,21 @@ knit_theme$set('edit-kwrite')
 
 \watermarkoff %----------------------------------------------------------------%
 
-\begin{frame}{Residual Plots}
+\begin{frame}[fragile]{Residual Plots}
 
-  One of the most useful diagnostic graphics is the plot of residuals vs.
-  predicted values.
-
-\vb
+  Plots of residuals vs. predicted values are very useful.
+  \begin{itemize}
+  \item Here we see clear evidence of heteroscedasticity.
+  \end{itemize}
+  
+<<>>=
+out1 <- lm(Price ~ Horsepower, data = Cars93)
+@
 
 \begin{columns}
 \begin{column}{0.5\textwidth}
-
-  
+ 
 <<echo = FALSE, message = FALSE>>=
-data(Cars93)
-out1 <- lm(Price ~ Horsepower, data = Cars93)
-
 p1 <- gg0(x = Cars93$Horsepower, y = Cars93$Price)
 p1 + geom_smooth(method = "lm", se = FALSE) +
     xlab("Horsepower") +
@@ -231,27 +233,6 @@ p1 + geom_hline(yintercept = 0, colour = "gray") +
     xlab("Predicted Price") +
     ylab("Residual Price")
 @
-\comment{%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<<echo = FALSE, message = FALSE>>=
-data(anscombe)
-out1 <- lm(y1 ~ x1, data = anscombe)
-
-p0 <- with(anscombe, gg0(x = x1, y = y1))
-p0 + geom_smooth(method = "lm", se = FALSE) +
-    xlab("X") +
-    ylab("Y")
-@
-\end{column}
-
-\begin{column}{0.5\textwidth}
-
-<<echo = FALSE>>=
-p0 <- gg0(x = predict(out1), y = resid(out1))
-p0 + geom_hline(yintercept = 0, colour = "gray") +
-    xlab("Predicted Y") +
-    ylab("Residual Y")
-@
-}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
 \end{column}
 \end{columns}
@@ -260,274 +241,46 @@ p0 + geom_hline(yintercept = 0, colour = "gray") +
 
 %------------------------------------------------------------------------------%
 
-\begin{frame}{Partial Regression Plots}
+\begin{frame}[fragile]{Scale-Location Plots}
+  
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+
+      Scale-location plots also offer an excellent means of detecting 
+      non-constant error variance.
+      \vc
+      \begin{itemize}
+        \item Plot an approximation of the pointwise residual variance against 
+          the fitted values.
+          \vc
+        \item Any trend indicates systematic changes in the residual variance.
+      \end{itemize}
+      
+    \end{column}
+    \begin{column}{0.5\textwidth}
+     
+<<>>=
+plot(out1, 3)
+@
+      
+    \end{column}
+  \end{columns}
   
 \end{frame}
 
 %------------------------------------------------------------------------------%
-\comment{%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Heteroscedasticity}
 
-  One commonly encountered problem is non-constant error variance (i.e.,
-  \emph{heteroscedasticity}) which violates Assumption \ref{constVar}.
-
-  \vb
-
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-
-<<echo = FALSE, message = FALSE>>=
-data(Cars93)
-out1 <- lm(Price ~ Horsepower, data = Cars93)
-
-p1 <- gg0(x = Cars93$Horsepower, y = Cars93$Price)
-p1 + geom_smooth(method = "lm", se = FALSE) +
-    xlab("Horsepower") +
-    ylab("Price")
-@
-\end{column}
-\begin{column}{0.5\textwidth}
-
-<<echo = FALSE>>=
-p1 <- gg0(x = predict(out1), y = resid(out1))
-p1 + geom_hline(yintercept = 0, colour = "gray") +
-    xlab("Predicted Price") +
-    ylab("Residual Price")
-@
-
-\end{column}
-\end{columns}
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}[fragile]{Heteroscedasticity}
-
-  We can easily generate a simple plot of residuals vs. fitted values by
-  plotting the fitted \texttt{lm()} object in R.
-
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-
-<<eval = FALSE>>=
-out1 <- lm(Price ~ Horsepower,
-           data = Cars93)
-
-plot(out1, 1)
-@
-
-\end{column}
-\begin{column}{0.5\textwidth}
-
-<<echo = FALSE>>=
-plot(out1, 1)
-@
-
-\end{column}
-\end{columns}
-
-\end{frame}
-
-\watermarkon %-----------------------------------------------------------------%
-
-\begin{frame}{Consequences of Heteroscedasticity}
-
-  Non-constant error variance will not bias the parameter estimates.
-  \begin{itemize}
-  \item The best fit line is still correct.
-  \item Our measure of uncertainty around that best fit line is wrong.
-  \end{itemize}
-  \vb
-  Heteroscedasticity will bias standard errors (usually downward).
-  \begin{itemize}
-  \item Test statistics will be too large.
-  \item CIs will be too narrow.
-  \item We will have inflated Type I error rates.
-  \end{itemize}
-  \vb
-  To get valid inference, we need to address (severe) heteroscedasticity.
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}{Treating Heteroscedasticity}
-
-  \begin{enumerate}
-  \item Transform your outcome using a concave function (e.g., $\ln(Y)$,
-    $\sqrt{Y}$).
-    \vc
-    \begin{itemize}
-    \item These transformations will shrink extreme values more than
-      small/moderate ones.
-    \end{itemize}
-    \vb
-  \item Refit the model using \emph{weighted least squares}.
-    \vc
-    \begin{itemize}
-    \item Create inverse weights using functions of the residual variances or
-      quantities highly correlated therewith.
-    \end{itemize}
-    \vb
-  \item Use a \emph{Heteroscedasticity Consistent} (HC) estimate of the
-    asymptotic covariance matrix.
-    \vc
-    \begin{itemize}
-    \item Robust standard errors, Huber-White standard errors, Sandwich
-      estimators
-    \item HC estimators correct the standard errors for non-constant error
-      variance.
-    \end{itemize}
-  \end{enumerate}
-
-\end{frame}
-
-\watermarkoff %----------------------------------------------------------------%
-
-\begin{frame}[fragile, allowframebreaks]{Example}
-
+\begin{frame}[fragile]{Residual Plots}
+  
+  Residual plots can also show violations of the linearity assumption.
+  
 <<>>=
-## The 'sandwich' package provides several HC estimators:
-library(sandwich)
-
-## Use sandwich estimator to compute ACOV matrix:
-hcCov <- vcovHC(out1)
-
-## Test coefficients with robust SEs:
-robTest <- coeftest(out1, vcov = hcCov)
-
-## Test coefficients with default SEs:
-defTest <- summary(out1)$coefficients
-@
-
-\pagebreak
-
-<<>>=
-## Compare robust and default approaches:
-robTest
-defTest
-@
-
-\end{frame}
-
-\watermarkon %-----------------------------------------------------------------%
-
-\begin{frame}{Correlated Errors}
-
-  Errors can become correlated in two basic ways:
-  \vb
-  \begin{enumerate}
-  \item Serial dependence
-    \begin{itemize}
-    \item When modeling longitudinal data, the errors for a given observational
-      unit are correlated over time.
-      \vc
-    \item We can detect temporal dependence by examining the
-      \emph{autocorrelation} of the residuals.
-    \end{itemize}
-    \vb
-  \item Clustering
-    \begin{itemize}
-    \item Your data have some important, unmodeled, grouping structure.
-      \begin{itemize}
-      \item Children nested within classrooms
-      \item Romantic couples
-      \item Departments within a company
-      \end{itemize}
-      \vc
-    \item We can detect problematic levels of clustering with the
-      \emph{intraclass correlation coefficient} (ICC).
-      \begin{itemize}
-      \item We need to know the clustering variable to apply the ICC.
-      \end{itemize}
-    \end{itemize}
-  \end{enumerate}
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}[allowframebreaks]{Treating Correlated Errors}
-
-  Serially dependent errors in a longitudinal model usually indicate an
-  inadequate model.
-  \vc
-  \begin{itemize}
-  \item Your model is ignoring some important aspect of the temporal variation
-    that is being absorbed by the error terms.
-    \vc
-  \item Hopefully, you can add the missing component to your model.
-  \end{itemize}
-
-  \pagebreak
-
-  Clustering can be viewed as theoretically meaningful or as a nuisance factor
-  that just needs to be controlled.
-  \vb
-  \begin{itemize}
-  \item If the clustering is meaningful, you should model the data using
-    \emph{multilevel modeling}.
-    \vc
-    \begin{itemize}
-    \item Hierarchical linear regression
-      \vc
-    \item Mixed models
-      \vc
-    \item Random effects models
-    \end{itemize}
-    \vc
-  \item If the clustering is an uninteresting nuisance, you can use specialized
-    HC variance estimators that deal with clustering.
-  \end{itemize}
-
-\end{frame}
-
-\watermarkoff %----------------------------------------------------------------%
-
-\begin{frame}{Model Specification}
-
-  Our assumptions mostly focus on the errors, so incorrect model specification
-  can lead to violations of many assumptions.
-  \vb
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-
-<<echo = FALSE>>=
 out2 <- lm(MPG.highway ~ Horsepower, data = Cars93)
+@ 
 
-p2 <- gg0(x = predict(out2), y = resid(out2))
-p3 <- p2 + geom_hline(yintercept = 0, colour = "gray") +
-    xlab("Predicted MPG") +
-    ylab("Residual MPG")
-p3
-@
-
-\end{column}
-
-\begin{column}{0.5\textwidth}
-
-<<echo = FALSE, message = FALSE>>=
-p3 + geom_smooth(method = "loess", se = FALSE)
-@
-
-\end{column}
-\end{columns}
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}{Nonlinear Trends in Residual Plots}
-
-  Clearly, the linear trend fits these data poorly.
-  \begin{itemize}
-    \item We should probably add some polynomial terms
-  \end{itemize}
-  \vb
   \begin{columns}
     \begin{column}{0.5\textwidth}
-
+      
 <<echo = FALSE, message = FALSE>>=
 p4 <- gg0(x = Cars93$Horsepower, y = Cars93$MPG.highway)
 p5 <- p4 + geom_smooth(method = "lm", se = FALSE) +
@@ -537,10 +290,14 @@ p5
 @
 
 \end{column}
-
 \begin{column}{0.5\textwidth}
 
 <<echo = FALSE, message = FALSE>>=
+p2 <- gg0(x = predict(out2), y = resid(out2))
+p3 <- p2 + geom_hline(yintercept = 0, colour = "gray") +
+    xlab("Predicted MPG") +
+    ylab("Residual MPG")
+
 p3 + geom_smooth(method = "loess", se = FALSE)
 @
 
@@ -549,170 +306,130 @@ p3 + geom_smooth(method = "loess", se = FALSE)
 
 \end{frame}
 
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Residual Plots}
+  We can easily create residual plots from a fitted model object.
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      
+<<>>=
+plot(out1, 1)
+@
+
+\end{column}
+\begin{column}{0.5\textwidth}
+
+<<>>=
+plot(out2, 1)
+@
+
+\end{column}
+\end{columns}
+ 
+\end{frame}
+
 \watermarkon %-----------------------------------------------------------------%
 
-\begin{frame}{Treating Residual Nonlinearity}
-
-  Nonlinearity in the residual plots is usually a sign of either:
+\begin{frame}{Partial Residual Plots}
+  
+  In multiple linear regression, ordinary residual plots may not reveal 
+  nonlinearity.
+  \begin{itemize}
+  \item If we do find nonlinearity, ordinary residual plots can't tell us which 
+    term is causing the issue.
+  \end{itemize}
+  \vb
+  Partial residual plots show the trend for individual predictors, after 
+  controlling for all other variables in the model.
+  \vc
   \begin{enumerate}
-  \item Model misspecification
-  \item Influential observations
+  \item First, define the partial residual for the \emph{p}th predictor.
+    \begin{align*}
+      \hat{\varepsilon}_n^{(p)} = \hat{\varepsilon}_n + \hat{\beta}_pX_{np}
+    \end{align*}
+  \item Then, plot the partial residuals, $\hat{\varepsilon}^{(p)}$, against
+    $X_p$, for all predictors.
   \end{enumerate}
-  \vb
-  This type of model misspecification usually implies omitted functions of
-  modeled variables.
-  \begin{itemize}
-  \item Polynomial terms
-  \item Interactions
-  \end{itemize}
-  \vb
-  The solution is to include the omitted term into the model and refit.
-  \begin{itemize}
-  \item This is very much easier said than done.
-  \end{itemize}
-
+  
 \end{frame}
 
 \watermarkoff %----------------------------------------------------------------%
 
-\begin{frame}{Residual Plots}
+\begin{frame}[fragile]{Partial Residual Plots}
 
-  Certainly looks better, but not ideal.
-  \vb
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-
-<<echo = FALSE, message = FALSE>>=
-out3 <- lm(MPG.highway ~ Horsepower + I(Horsepower^2), data = Cars93)
-
-p6 <- gg0(x = Cars93$Horsepower, y = Cars93$MPG.highway)
-p7 <- p6 + geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = FALSE) +
-    xlab("Horsepower") +
-    ylab("MPG")
-p7
-@
-
-\end{column}
-
-\begin{column}{0.5\textwidth}
-
-<<echo = FALSE, message = FALSE>>=
-p8 <- gg0(x = predict(out3), y = resid(out3)) +
-    geom_hline(yintercept = 0) +
-    geom_smooth(method = "loess", se = FALSE) +
-    xlab("Predicted MPG") +
-    ylab("Residual MPG")
-p8
-@
-
-\end{column}
-\end{columns}
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}{Residual Plots}
-
-  Further improvement (perhaps).
-  \vb
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-
-<<echo = FALSE, message = FALSE>>=
-out4 <- lm(MPG.highway ~ Horsepower + I(Horsepower^2) + I(Horsepower^3),
-           data = Cars93)
-
-p9  <- gg0(x = Cars93$Horsepower, y = Cars93$MPG.highway)
-p10 <- p9 + geom_smooth(method = "lm", formula = y ~ x + I(x^2) + I(x^3),
-                        se = FALSE) +
-    xlab("Horsepower") +
-    ylab("MPG")
-p10
-@
-
-\end{column}
-
-\begin{column}{0.5\textwidth}
-
-<<echo = FALSE, message = FALSE>>=
-p11 <- gg0(x = predict(out4), y = resid(out4)) +
-    geom_hline(yintercept = 0) +
-    geom_smooth(method = "loess", se = FALSE) +
-    xlab("Predicted MPG") +
-    ylab("Residual MPG")
-p11
-@
-
-\end{column}
-\end{columns}
+  Let's look at an example. Consider the following model.
+  
+<<>>=
+out3 <- lm(MPG.highway ~ Horsepower + Turn.circle, data = Cars93)
+partSummary(out3, -1)
+@ 
 
 \end{frame}
 
 \watermarkon %-----------------------------------------------------------------%
 
-\begin{frame}[allowframebreaks]{Omitted Variables}
+\begin{frame}{Partial Residual Plots}
 
-  The most common cause of endogeneity (i.e., violating Assumption \ref{exo}) is
-  \emph{omitted variable bias}.
-  \vb
-  \begin{itemize}
-  \item If we leave an important predictor variable out of our equation, some
-    modeled predictors will become endogenous and their estimated regression
-    slopes will be biased.
-    \vb
-  \item The omitted variable must be correlated with $Y$ and at least one of the
-    modeled $X_p$, to be a problem.
-  \end{itemize}
+<<out.width = "55%">>=
+plot(out3, 1)
+@   
 
-  \pagebreak
+\end{frame}
 
-  Assume the following is the true regression model.
-  \begin{align*}
-    Y = \beta_0 + \beta_1X + \beta_2Z + \varepsilon
-  \end{align*}
-  Now, suppose we omit $Z$ from the model:
-  \begin{align*}
-    Y &= \beta_0 + \beta_1X + \omega\\
-    \omega &= \varepsilon + \beta_2Z
-  \end{align*}
-  Our new error, $\omega$, is a combination of the true error, $\varepsilon$,
-  and the omitted term, $\beta_2Z$.
-  \begin{itemize}
-  \item Consequently, if $X$ and $Z$ are correlated, omitting $Z$ induces a
-    correlation between $X$ and $\omega$ (i.e., endogeneity).
-  \end{itemize}
+\watermarkoff %----------------------------------------------------------------%
+
+\begin{frame}{Partial Residual Plots}
+
+<<fig.asp = 0.5>>=
+crPlots(out3, ylab = "Partial Residual")
+@   
 
 \end{frame}
 
 %------------------------------------------------------------------------------%
 
-\begin{frame}{Treating Omitted Variable Bias}
 
-  Omitted variable bias can have severe consequences, but you can't really test
-  for it.
-  \vb
-  \begin{itemize}
-  \item The \emph{errors} are correlated with the predictors, but our model is
-    estimated under the assumption of exogeneity, so the \emph{residuals} from
-    our model will generally be uncorrelated with the predictors.
-    \vb
-  \item We mostly have to pro-actively work to include all relevant variables in
-    our model.
-  \end{itemize}
+\begin{frame}[fragile]{Partial Residual Plots}
+
+  Let's add the quadratic expansion of Horsepower.
+  
+<<>>=
+out4 <- update(out3, ". ~ . + poly(Horsepower, 2) - Horsepower")
+partSummary(out4, -1)
+@ 
+
+\end{frame}
+
+\watermarkon %-----------------------------------------------------------------%
+
+\begin{frame}{Partial Residual Plots}
+
+<<out.width = "55%">>=
+plot(out4, 1)
+@   
 
 \end{frame}
 
 \watermarkoff %----------------------------------------------------------------%
-}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{QQ-Plot}
+\begin{frame}{Partial Residual Plots}
+
+<<fig.asp = 0.5>>=
+crPlots(out4, ylab = "Partial Residual")
+@   
+
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}{QQ-Plots}
   
   \begin{columns}
     \begin{column}{0.5\textwidth}
 
-      One of the best ways to evaluate the normality of the error distribution
-      with a Q-Q Plot.
+      A normal Q-Q Plot is one of the best ways to evaluate the normality 
+      assumption.
       \vc
       \begin{itemize}
       \item Plot the quantiles of the residual distribution against the
@@ -741,57 +458,6 @@ qqline(resid(out1))
 \end{frame}
 
 \watermarkon %-----------------------------------------------------------------%
-\comment{%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Consequences of Violating Normality}
-
-  In small samples, with \emph{\underline{fixed}} predictors, normally
-  distributed errors imply normal sampling distributions for the regression
-  coefficients.
-  \vc
-  \begin{itemize}
-  \item In large samples, the central limit theorem implies normal sampling
-    distributions for the coefficients, regardless of the error distribution.
-  \end{itemize}
-  \va
-  \pause
-  Prediction intervals require normally distributed errors.
-  \vc
-  \begin{itemize}
-  \item Confidence intervals for predictions share the same normality
-    requirements as the coefficients' sampling distributions.
-  \end{itemize}
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}{Treating Violations of Normality}
-
-  We usually don't need to do anything about non-normal errors.
-  \begin{itemize}
-  \item The CLT will protect our inferences.
-  \end{itemize}
-  \vb
-  \pause
-  We can use \emph{bootstrapping} to get around the need for normality.
-  \begin{enumerate}
-  \item Treat your sample as a synthetic population from which you draw many new
-    samples (with replacement).
-  \item Estimate your model in each new sample.
-  \item The replicates of your estimated parameters generate an empirical
-    sampling distribution that you can use for inference.
-  \end{enumerate}
-  \vb
-  \pause
-  Bootstrapping can be used for inference on pretty much any estimable
-  parameter, but it won't work with small samples.
-  \begin{itemize}
-  \item Need to assume that your sample is representative of the population
-  \end{itemize}
-
-\end{frame}
-}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%------------------------------------------------------------------------------%
 
 \sectionslide{Influential Observations}
 
@@ -851,61 +517,24 @@ qqline(resid(out1))
 
 %------------------------------------------------------------------------------%
 
-\begin{frame}{Detecting Outliers}
+\begin{frame}{Studentized Residuals}
 
-  We are specifically interested in \emph{externally studentized residuals}.
-  \vb
-  \begin{itemize}
-  \item We can't simply standardize the ordinary residuals.
-    \begin{itemize}
-    \item \emph{Internally studentized residuals}
-      \vc
-    \item Outliers can pull the regression line towards themselves.
-      \vc
-    \item The internally studentized residuals for outliers will be too small.
-    \end{itemize}
-  \end{itemize}
-  \vb
   Begin by defining the concept of a \emph{deleted residual}:
   \begin{align*}
     \hat{\varepsilon}_{(n)} = Y_n - \hat{Y}_{(n)}
   \end{align*}
   \vx{-18}
   \begin{itemize}
-    \item $\hat{\varepsilon}_{(n)}$ quantifies the distance of $Y_n$ from the
-      regression line estimated after excluding the $n$th observation.
+  \item $\hat{\varepsilon}_{(n)}$ quantifies the distance of $Y_n$ from the
+    regression line estimated after excluding the $n$th observation.
   \end{itemize}
-
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}{Studentized Residuals}
-
+  \va
   If we standardize the deleted residual, $\hat{\varepsilon}_{(n)}$, we get the
   externally studentized residual:
   \begin{align*}
     t_{(n)} = \frac{\hat{\varepsilon}_{(n)}}{SE_{\hat{\varepsilon}_{(n)}}}
   \end{align*}
-  The externally studentized residuals have two very useful properties:
-  \vb
-  \begin{enumerate}
-  \item Each $t_{(n)}$ is scaled equivalently.
-    \vc
-    \begin{itemize}
-    \item We can directly compare different $t_{(n)}$.
-    \end{itemize}
-    \vb
-  \item The $t_{(n)}$ are \emph{Student's t} distributed.
-    \vc
-    \begin{itemize}
-    \item We can quantify outliers in terms of quantiles of the $t$
-      distribution.
-      \vc
-    \item $|t_{(n)}| > 3.0$ is a common rule of thumb for flagging outliers.
-    \end{itemize}
-  \end{enumerate}
-
+  
 \end{frame}
 
 \watermarkoff %----------------------------------------------------------------%
@@ -1111,6 +740,31 @@ plot(cd)
 
 %------------------------------------------------------------------------------%
 
+\begin{frame}[fragile]{Plots of Cook's Distance}
+
+  We can create Cook's Distance plots by plotting a fitted model object.
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      
+<<out.width = "90%">>=
+plot(out1, 4)
+@
+      
+    \end{column}
+    \begin{column}{0.5\textwidth}
+
+<<out.width = "90%">>=
+plot(out4, 4)
+@ 
+      
+    \end{column}
+  \end{columns}
+  
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
 \begin{frame}[fragile]{Plots of DFBETAS}
 
 <<eval = FALSE>>=
@@ -1155,6 +809,32 @@ p1 + geom_hline(yintercept = c(-2 / sqrt(n), 2 / sqrt(n)), colour = "red") +
 \end{column}
 \end{columns}
 
+\end{frame}
+
+%------------------------------------------------------------------------------%
+
+\begin{frame}[fragile]{Influence Plots} 
+
+  Plotting studentized residuals against leverages can help identify influential 
+  cases.
+  
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      
+<<out.width = "90%">>=
+plot(out1, 5)
+@
+      
+    \end{column}
+    \begin{column}{0.5\textwidth}
+
+<<out.width = "90%">>=
+plot(out4, 5)
+@ 
+      
+    \end{column}
+  \end{columns}
+  
 \end{frame}
 
 %------------------------------------------------------------------------------%
@@ -1228,8 +908,8 @@ Cars93.2 <- Cars93[-maxD, ]
 ## Fit model with reduced sample:
 out2 <- lm(Price ~ Horsepower, data = Cars93.2)
 
-round(summary(out1)$coefficients, 6)
-round(summary(out2)$coefficients, 6)
+summary(out1)$coefficients %>% round(6)
+summary(out2)$coefficients %>% round(6)
 @
 
 \pagebreak
@@ -1317,8 +997,8 @@ Cars93.2 <- Cars93[-maxDs, ]
 ## Fit model with reduced sample:
 out2.2 <- lm(Price ~ Horsepower, data = Cars93.2)
 
-round(summary(out1)$coefficients, 6)
-round(summary(out2.2)$coefficients, 6)
+summary(out1)$coefficients %>% round(6)
+summary(out2.2)$coefficients %>% round(6)
 @
 
 \pagebreak
@@ -1338,32 +1018,6 @@ summary(out2.2)[c("sigma", "r.squared", "fstatistic")] %>%
     unlist() %>%
     head(3)
 @
-
-\end{frame}
-
-\watermarkon %-----------------------------------------------------------------%
-
-\begin{frame}{Treating Influential Points}
-
-  The most common way to address influential observations is simply to delete
-  them and refit the model.
-  \vc
-  \begin{itemize}
-  \item This approach is often effective---and always simple---but it is not
-    fool-proof.
-  \vc
-  \item Although an observation is influential, we may not be able to justify
-    excluding it from the analysis.
-  \end{itemize}
-  \vb
-  Robust regression procedures can estimate the model directly in the
-  presence of influential observations.
-  \vc
-  \begin{itemize}
-  \item Observations in the tails of the distribution are weighted less in the
-    estimation process, so outliers and high-leverage points cannot exert
-    substantial influence on the fit.
-  \end{itemize}
 
 \end{frame}
 
