@@ -22,4 +22,4 @@ all: ${NAMES}
 clean:
 	mv *.pdf ../
 	latexmk -c
-	rm -f *.tex *.nav *.snm *.vrb
+	rm -f *.tex *.nav *.snm *.vrb *.fls *.bbl
