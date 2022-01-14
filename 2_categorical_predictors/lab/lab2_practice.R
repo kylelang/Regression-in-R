@@ -1,39 +1,29 @@
-### Title:    Stats & Methods Lab 4 Practice Script
+### Title:    Regression in R: Lab 2 Practice Script
 ### Author:   Kyle M. Lang
 ### Created:  2018-09-24
-### Modified: 2020-09-24
+### Modified: 2022-01-14
 
 
-###          ###
-### Overview ###
-###          ###
+###-Overview-----------------------------------------------------------------###
 
 ## You will practice fitting MLR models with categorical predictor variables.
 
-## You will need the built-in R datasets "bfi" (from the psych package) and
+## You will need the built-in R datasets "bfi" (from the psychData package) and
 ## "BMI" (from the wec) package.
 
 
-###                   ###
-### Tasks / Questions ###
-###                   ###
+###-Preliminaries------------------------------------------------------------###
 
-
-##--Preliminaries-------------------------------------------------------------##
-
-## 1) Use the "install.packages" function to install the "wec" and "psych"
+## 1) Use the "install.packages" function to install the "wec" and "psychData"
 ##    packages.
 
-## 2) Use the "library" function to load the "psych" and "wec" packages.
+## 2) Use the "library" function to load the "psychData" and "wec" packages.
 
 ## 3) Use the "data" function to load the "bfi" and "BMI" datasets into your
 ##    workspace.
 
-## 4) Source the "studentFunctions.R" file to initialize the summary.cellMeans()
-##    function.
 
-
-##--Factors-------------------------------------------------------------------##
+###-Factors------------------------------------------------------------------###
 
 ### Use the "bfi" data to complete the following:
 ### -- You may ignore any missing data, for the purposes of these exercises
@@ -51,7 +41,7 @@
 ##    men in this sample?
 
 
-##--Dummy Codes---------------------------------------------------------------##
+###-Dummy Codes--------------------------------------------------------------###
 
 ### Use the "BMI" data to complete the following:
 
@@ -66,29 +56,11 @@
 ##     -- Set the reference group to "highest" for the "education" factor
 ## 3b) Is there a significant effect (at alpha = 0.05) of "sex" on "BMI" after
 ##     controlling for "education"?
-## 3c) What is the expected BMI for males in the highest education group?
+## 3c) According to the model from (3a), what is the expected BMI for males in
+##     the highest education group?
 
 
-##--Cell-Means Codes----------------------------------------------------------##
-
-### Use the "BMI" data to complete the following:
-
-## 1) Create a new variable by centering "BMI" on 25.
-
-## 2a) Regress the centered BMI from (1) onto the set of cell-means codes for
-##     "education".
-## 2b) Is there a significant effect of education on BMI, at the alpha = 0.05
-##     level?
-## 2c) What is the value of the test statistic that you used to answer (2b)?
-## 2d) Is the mean BMI level in the "lowest" education group significantly
-##     different from 25, at an alpha = 0.05 level?
-## 2e) Is the mean BMI level in the "middle" education group significantly
-##     different from 25, at an alpha = 0.05 level?
-## 2f) Is the mean BMI level in the "highest" education group significantly
-##     different from 25, at an alpha = 0.05 level?
-
-
-##--Unweighted Effects Codes--------------------------------------------------##
+###-Unweighted Effects Codes-------------------------------------------------###
 
 ### Use the "BMI" data to complete the following:
 
@@ -98,8 +70,11 @@
 ##       the unweighted effects coding.
 
 ## 2) Change the reference group (i.e., the omitted group) for the unweighted
-##    effects codes that you implemented in (1) and rerun the model regressing
+##    effects codes that you implemented in (1), and rerun the model regressing
 ##    "BMI" onto "education" and "childless".
+
+### Use the results of the models you estimated in (1) and (2) to answer the
+### following questions.
 
 ## 3a) What is the expected BMI (averaged across education groups) for people
 ##     with children?
@@ -115,7 +90,7 @@
 ##     at the alpha = 0.05 level?
 
 
-##--Weighted Effects Codes----------------------------------------------------##
+###-Weighted Effects Codes---------------------------------------------------###
 
 ### Use the "BMI" data to complete the following:
 
@@ -125,8 +100,11 @@
 ##       the weighted effects coding.
 
 ## 2) Change the reference group (i.e., the omitted group) for the weighted
-##    effects codes that you implemented in (1) and rerun the model regressing
+##    effects codes that you implemented in (1), and rerun the model regressing
 ##    "BMI" onto "education" and "sex".
+
+### Use the results of the models you estimated in (1) and (2) to answer the
+### following questions.
 
 ## 3a) What is the average BMI for females?
 ## 3b) What is the expected difference in BMI between the least educated group
@@ -142,4 +120,5 @@
 ##     above and beyond sex?
 ## 4b) What is the value of the test statistic that you used to answer (4a)?
 
-##----------------------------------------------------------------------------##
+
+###-END----------------------------------------------------------------------###

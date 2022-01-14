@@ -1,25 +1,18 @@
-### Title:    Stats & Methods Lab 4 Suggested Solutions
+### Title:    Regression in R: Lab 2 Suggested Solutions
 ### Author:   Kyle M. Lang
 ### Created:  2018-09-24
-### Modified: 2020-09-24
+### Modified: 2022-01-14
 
 
-###          ###
-### Overview ###
-###          ###
+###-Overview-----------------------------------------------------------------###
 
 ## You will practice fitting MLR models with categorical predictor variables.
 
-## You will need the built-in R datasets "bfi" (from the psych package) and
+## You will need the built-in R datasets "bfi" (from the psychData package) and
 ## "BMI" (from the wec) package.
 
 
-###                   ###
-### Tasks / Questions ###
-###                   ###
-
-
-##--Preliminaries-------------------------------------------------------------##
+###-Preliminaries------------------------------------------------------------###
 
 ## 1) Use the "install.packages" function to install the "wec" and "psych"
 ##    packages.
@@ -37,12 +30,8 @@ library(wec)
 data(bfi)
 data(BMI)
 
-## 4) Source the "studentFunctions.R" file to initialize the summary.cellMeans()
-##    function.
 
-source("studentFunctions.R")
-
-##--Factors-------------------------------------------------------------------##
+###-Factors------------------------------------------------------------------###
 
 ### Use the "bfi" data to complete the following:
 ### -- You may ignore any missing data, for the purposes of these exercises
@@ -76,7 +65,7 @@ table(gender, education)["female", "graduate_degree"]
 names(which.max(table(gender, education)["male", ]))
 
 
-##--Dummy Codes---------------------------------------------------------------##
+###-Dummy Codes--------------------------------------------------------------###
 
 ### Use the "BMI" data to complete the following:
 
@@ -114,55 +103,12 @@ isSig <- function(obj, what, alpha = 0.05)
 
 isSig(out1, "sexfemale")
 
-## 3c) What is the expected BMI for males in the highest education group?
-
+## 3c) According to the model from (3a), what is the expected BMI for males in
+##     the highest education group?
 coef(out1)["(Intercept)"]
 
 
-##--Cell-Means Codes----------------------------------------------------------##
-
-### Use the "BMI" data to complete the following:
-
-## 1) Create a new variable by centering "BMI" on 25.
-
-BMI$bmi25 <- BMI$BMI - 25
-
-## 2a) Regress the centered BMI from (1) onto the set of cell-means codes for
-##     "education".
-
-out2 <- lm(bmi25 ~ education - 1, data = BMI)
-s2   <- summary.cellMeans(out2)
-s2
-
-## 2b) Is there a significant effect of education on BMI, at the alpha = 0.05
-##     level?
-
-f <- s2$fstatistic
-p <- pf(f[1], f[2], f[3], lower.tail = FALSE)
-
-ifelse(p < 0.05, "YES", "NO")
-
-## 2c) What is the value of the test statistic that you used to answer (2b)?
-
-f[1]
-
-## 2d) Is the mean BMI level in the "lowest" education group significantly
-##     different from 25, at an alpha = 0.05 level?
-
-isSig(out2, "educationlowest")
-
-## 2e) Is the mean BMI level in the "middle" education group significantly
-##     different from 25, at an alpha = 0.05 level?
-
-isSig(out2, "educationmiddle")
-
-## 2f) Is the mean BMI level in the "highest" education group significantly
-##     different from 25, at an alpha = 0.05 level?
-
-isSig(out2, "educationhighest")
-
-
-##--Unweighted Effects Codes--------------------------------------------------##
+###-Unweighted Effects Codes-------------------------------------------------###
 
 ### Use the "BMI" data to complete the following:
 
@@ -179,7 +125,7 @@ s3   <- summary(out3)
 s3
 
 ## 2) Change the reference group (i.e., the omitted group) for the unweighted
-##    effects codes that you implemented in (1) and rerun the model regressing
+##    effects codes that you implemented in (1), and rerun the model regressing
 ##    "BMI" onto "education" and "childless".
 
 BMI$education            <- changeOmitted(BMI$education)
@@ -189,6 +135,9 @@ BMI$education            <- fixEcNames(BMI$education)
 out4 <- lm(BMI ~ education + childless, data = BMI)
 s4   <- summary(out4)
 s4
+
+### Use the results of the models you estimated in (1) and (2) to answer the
+### following questions.
 
 ## 3a) What is the expected BMI (averaged across education groups) for people
 ##     with children?
@@ -218,7 +167,7 @@ coef(out4)["educationmiddle"]
 isSig(out4, "educationmiddle")
 
 
-##--Weighted Effects Codes----------------------------------------------------##
+###-Weighted Effects Codes---------------------------------------------------###
 
 ### Use the "BMI" data to complete the following:
 
@@ -235,7 +184,7 @@ s5   <- summary(out5)
 s5
 
 ## 2) Change the reference group (i.e., the omitted group) for the weighted
-##    effects codes that you implemented in (1) and rerun the model regressing
+##    effects codes that you implemented in (1), and rerun the model regressing
 ##    "BMI" onto "education" and "sex".
 
 contrasts(BMI$education) <- contr.wec(BMI$education, omitted = "highest")
@@ -243,6 +192,9 @@ contrasts(BMI$education) <- contr.wec(BMI$education, omitted = "highest")
 out6 <- lm(BMI ~ sex + education, data = BMI)
 s6   <- summary(out6)
 s6
+
+### Use the results of the models you estimated in (1) and (2) to answer the
+### following questions.
 
 ## 3a) What is the average BMI for females?
 
@@ -284,4 +236,5 @@ ifelse(sig, "YES", "NO")
 
 av7[2, "F"]
 
-##----------------------------------------------------------------------------##
+
+###-END----------------------------------------------------------------------###
