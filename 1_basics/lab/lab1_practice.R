@@ -74,3 +74,6 @@
 ##     "Unemployed" the better predictor of "GNP"?
 ## 2d) Could we do the comparison in (2c) using an F-test for the difference in
 ##     R-squared values? Why or why not?
+
+
+###-END----------------------------------------------------------------------###
