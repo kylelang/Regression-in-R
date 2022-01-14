@@ -1,25 +1,18 @@
-### Title:    Stats & Methods Lab 2 Suggested Solutions
+### Title:    Regression in R: Lab 1 Suggested Solutions
 ### Author:   Kyle M. Lang
 ### Created:  2018-04-10
-### Modified: 2020-09-16
+### Modified: 2022-01-14
 
 
-###          ###
-### Overview ###
-###          ###
+###-Overview-----------------------------------------------------------------###
 
 ## You will practice basic regression modeling and model comparison.
 
 ## You will need the "longley.rds" dataset. This dataset is available in the
-## "data" directory for this lab.
+## "data" directory for this course.
 
 
-###                   ###
-### Tasks / Questions ###
-###                   ###
-
-
-##--Preliminaries-------------------------------------------------------------##
+###-Preliminaries------------------------------------------------------------###
 
 ## 1) Use the "install.packages" function to install the "MLmetrics" package.
 
@@ -33,12 +26,12 @@ library(MLmetrics)
 ##    "longley.rds" data into your workspace.
 
 
-dataDir <- "../data/"
+dataDir <- "../../data/"
 fn1     <- "longley.rds"
 longley <- readRDS(paste0(dataDir, fn1))
 
 
-##--Linear Regression---------------------------------------------------------##
+###-Linear Regression--------------------------------------------------------###
 
 ### Use the "longley" data for the following:
 
@@ -121,8 +114,7 @@ coef(out3)["Employed"]
 
 isSig(out3, "Employed")
 
-## 3d) What is the 99% confidence interval (CI) for the partial effect of
-##     "Employed" on "GNP"?
+## 3d) What is the 99% CI for the partial effect of "Employed" on "GNP"?
 
 confint(out3, parm = "Employed", level = 0.99)
 
@@ -152,7 +144,7 @@ coef(out4)["Unemployed"]
 isSig(out4, "Unemployed")
 
 
-##--Model Comparison----------------------------------------------------------##
+###-Model Comparison---------------------------------------------------------###
 
 ### Use the "longley" data for the following:
 

@@ -1,25 +1,18 @@
-### Title:    Stats & Methods Lab 2 Practice Script
+### Title:    Regression in R: Lab 1 Practice Script
 ### Author:   Kyle M. Lang
 ### Created:  2018-04-10
-### Modified: 2020-09-09
+### Modified: 2022-01-14
 
 
-###          ###
-### Overview ###
-###          ###
+###-Overview-----------------------------------------------------------------###
 
 ## You will practice basic regression modeling and model comparison.
 
 ## You will need the "longley.rds" dataset. This dataset is available in the
-## "data" directory for this lab.
+## "data" directory for this course.
 
 
-###                   ###
-### Tasks / Questions ###
-###                   ###
-
-
-##--Preliminaries-------------------------------------------------------------##
+###-Preliminaries------------------------------------------------------------###
 
 ## 1) Use the "install.packages" function to install the "MLmetrics" package.
 
@@ -29,7 +22,7 @@
 ##    "longley.rds" data into your workspace.
 
 
-##--Linear Regression---------------------------------------------------------##
+###-Linear Regression--------------------------------------------------------###
 
 ### Use the "longley" data for the following:
 
@@ -53,8 +46,7 @@
 ##     "Year"? 
 ## 3c) Is the partial effect of "Employed" on "GNP" statistically significant at
 ##     the alpha = 0.05 level?
-## 3d) What is the 99% confidence interval (CI) for the partial effect of
-##     "Employed" on "GNP"?
+## 3d) What is the 99% CI for the partial effect of "Employed" on "GNP"?
 
 ## 4a) Regress "GNP" onto "Year" and "Unemployed".
 ## 4b) What is the partial effect of "Unemployed" on "GNP", after controlling
@@ -63,7 +55,7 @@
 ##     at the alpha = 0.05 level?
 
 
-##--Model Comparison----------------------------------------------------------##
+###-Model Comparison---------------------------------------------------------###
 
 ### Use the "longley" data for the following:
 
@@ -71,7 +63,7 @@
 ##     of "GNP" onto "Year" and the multiple linear regression of "GNP" onto
 ##     "Year" and "Population"?
 ## 1b) Is this increase in R-squared significantly different from zero at the
-##     alpha = 0.05 level? 
+##     alpha = 0.05 level?
 ## 1c) What is the value of the test statistic that you used to answer (1b)?
 
 ## 2a) What is the MSE for the model that regresses "GNP" onto "Year" and

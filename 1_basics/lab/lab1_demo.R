@@ -1,31 +1,25 @@
-### Title:    Stats & Methods Lab 2 Demonstration Script
+### Title:    Regression in R: Lab 1 Demonstration Script
 ### Author:   Kyle M. Lang
 ### Created:  2017-09-08
-### Modified: 2020-09-09
+### Modified: 2022-01-14
 
-###--------------------------------------------------------------------------###
-
-### Preliminaries ###
+###-Preliminaries------------------------------------------------------------###
 
 install.packages("MLmetrics", repos = "http://cloud.r-project.org")
 
 rm(list = ls(all = TRUE)) # Clear workspace
 
-library(MLmetrics) # We'll need this for MSEs
+library(MLmetrics) # For MSEs
+library(dplyr)     # For pipelines
 
 setwd("") # Let's all set our working directory to the correct place
 
-###--------------------------------------------------------------------------###
+###-Data I/O-----------------------------------------------------------------###
 
-### Data I/O ###
+dataDir <- "../../data/"
+cars    <- readRDS(paste0(dataDir, "mtcars.rds"))
 
-dataDir <- "../data/"
-
-cars <- readRDS(paste0(dataDir, "mtcars.rds"))
-
-###--------------------------------------------------------------------------###
-
-### Simple Linear Regression ###
+###-Simple Linear Regression-------------------------------------------------###
 
 ## Fit a simple linear regression model:
 out1 <- lm(qsec ~ hp, data = cars)
@@ -61,26 +55,7 @@ yHat1.2
 ## Compare:
 yHat1.1 - yHat1.2
 
-###--------------------------------------------------------------------------###
-
-## Reproduce the Tests from Lab 1 ###
-
-## t-test:
-t.test(mpg ~ am, data = cars, var.equal = TRUE)
-summary(lm(mpg ~ am, data = cars))
-
-## Correlation:
-with(cars, cor.test(mpg, wt))
-
-## A naive approach:
-summary(lm(mpg ~ wt, data = cars))
-
-## We need to standardize the regression coefficients:
-summary(lm(scale(mpg) ~ scale(wt), data = cars))
-
-###--------------------------------------------------------------------------###
-
-### Multiple Linear Regression ###
+###-Multiple Linear Regression-----------------------------------------------###
 
 ## Fit a multiple linear regression model:
 out4 <- lm(qsec ~ hp + wt + carb, data = cars)
@@ -105,15 +80,13 @@ confint(out4, parm = c("(Intercept)", "wt"), level = 0.99)
 
 ## Manually compute t-statistics:
 cf4 <- coef(out4)
-se4 <- sqrt(diag(vcov(out4)))
+se4 <- out4 %>% vcov() %>% diag() %>% sqrt()
 t4  <- cf4 / se4
 
 s4
 t4
 
-###--------------------------------------------------------------------------###
-
-### Model Comparison ###
+###-Model Comparison---------------------------------------------------------###
 
 ## Change in R^2:
 s4$r.squared - s1$r.squared
@@ -128,9 +101,7 @@ mse4 <- MSE(y_pred = predict(out4), y_true = cars$qsec)
 mse1
 mse4
 
-###--------------------------------------------------------------------------###
-
-### A More Elegant Way to Build Models ###
+###-A More Elegant Way to Build Models---------------------------------------###
 
 ## The long way:
 out1 <- lm(qsec ~ hp, data = mtcars)
