@@ -1,26 +1,19 @@
-### Title:    Stats & Methods Lab 5 Practice Script
+### Title:    Regression in R: Lab 4 Practice Script
 ### Author:   Kyle M. Lang
 ### Created:  2018-09-24
-### Modified: 2020-09-30
+### Modified: 2022-01-18
 
 
-###          ###
-### Overview ###
-###          ###
+###-Overview-----------------------------------------------------------------###
 
 ## You will practice using MLR models for moderation analysis.
 
 ## You will need the "msq2.rds" data and the built-in R datasets "cps3" and
 ## "leafshape" (from the DAAG package). The "msq2.rds" dataset is available in
-## the "data" directory for this lab.
+## the "data" directory for this course.
 
 
-###                   ###
-### Tasks / Questions ###
-###                   ###
-
-
-##--Preliminaries-------------------------------------------------------------##
+###-Preliminaries------------------------------------------------------------###
 
 ## 1) Use the "install.packages" function to install the "rockchalk" and "DAAG"
 ##    packages.
@@ -34,7 +27,7 @@
 ##    your workspace.
 
 
-##--Continuous Variable Moderation--------------------------------------------##
+###-Continuous Variable Moderation-------------------------------------------###
 
 ### Use the "msq2" data to complete the following:
 
@@ -71,15 +64,8 @@
 ## 3b) Do the results of the centering approach agree with the results from
 ##     'rockchalk'?
 
-## 4a) Use the 'rockchalk' package to implement a Johnson-Neyman analysis of the
-##     interaction you estimated in (1a).
-## 4b) What are the boundaries of the Johnson-Neyman region of significance?
-## 4c) Where in the distribution of Negative Affect is the effect of Energetic
-##     Arousal on Tense Arousal (controlling for Positive Affect) statistically
-##     significant?
 
-
-##--Binary Categorical Moderators---------------------------------------------##
+###-Binary Categorical Moderators--------------------------------------------###
 
 ### Use the "cps3" data to complete the following:
 
@@ -105,7 +91,7 @@
 ## 2e) Visualize the simple slopes compute above in an appropriate way.
 
 
-##--Nominal Categorical Moderators--------------------------------------------##
+###-Nominal Categorical Moderators-------------------------------------------###
 
 ### Use the "leafshape" data to complete the following:
 
@@ -133,4 +119,5 @@
 ## 4b) What caveat might you want to place on the conclusion reported in (4a)?
 ##     HINT: Look at the answers to Question 1 of this section.
 
-##----------------------------------------------------------------------------##
+
+###-END----------------------------------------------------------------------###

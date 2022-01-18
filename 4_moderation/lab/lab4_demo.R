@@ -1,21 +1,27 @@
-### Title:    Stats & Methods Lab 5 Demonstration Script
+### Title:    Regression in R: Lab 4 Demonstration Script
 ### Author:   Kyle M. Lang
 ### Created:  2016-04-04
-### Modified: 2020-09-30
+### Modified: 2022-01-18
 
 rm(list = ls(all = TRUE))
 
 ## Install the new packages we'll need:
 install.packages("rockchalk", repos = "http://cloud.r-project.org")
 
+library(dplyr)     # For data manipulation
+library(magrittr)  # For special pipes
 library(rockchalk) # For interaction probing
 
-dataDir <- "../data/"
-ginz    <- readRDS(paste0(dataDir, "ginzberg.rds"))
+## Load data:
+dataDir <- "../../data/"
 
-##----------------------------------------------------------------------------##
+ginz <- readRDS(paste0(dataDir, "ginzberg.rds"))
+bfi  <- readRDS(paste0(dataDir, "bfi_scored.rds"))
 
-### Contiuous Variable Moderation ###
+data(iris)
+
+
+###-Contiuous Variable Moderation--------------------------------------------###
 
 ## Focal effect:
 out0 <- lm(depression ~ fatalism, data = ginz)
@@ -29,33 +35,35 @@ summary(out1)
 out2 <- lm(depression ~ fatalism * simplicity, data = ginz)
 summary(out2)
 
-##----------------------------------------------------------------------------##
 
-### Probing via Centering ###
+###-Probing via Centering----------------------------------------------------###
 
 ## Center 'simplicity' on Mean & Mean +/- 1SD
 m <- mean(ginz$simplicity)
 s <- sd(ginz$simplicity)
 
-ginz$zMid <- ginz$simplicity - m 
-ginz$zLo  <- ginz$simplicity - (m - s)
-ginz$zHi  <- ginz$simplicity - (m + s)
+ginz %<>% mutate(simpLo = simplicity - (m - s),
+                 simpMid = simplicity - m,
+                 simpHi = simplicity - (m + s)
+                 )
+
+## Check the results:
+head(ginz)
 
 ## Test SS at Mean - 1SD:
-out2.1 <- lm(depression ~ fatalism * zLo, data = ginz)
+out2.1 <- lm(depression ~ fatalism * simpLo, data = ginz)
 summary(out2.1)
 
 ## Test SS at Mean:
-out2.2 <- lm(depression ~ fatalism * zMid, data = ginz)
+out2.2 <- lm(depression ~ fatalism * simpMid, data = ginz)
 summary(out2.2)
 
 ## Test SS for Mean + 1SD:
-out2.3 <- lm(depression ~ fatalism * zHi, data = ginz)
+out2.3 <- lm(depression ~ fatalism * simpHi, data = ginz)
 summary(out2.3)
 
-##----------------------------------------------------------------------------##
 
-### Probing via the 'rockchalk' Package ###
+###-Probing via the 'rockchalk' Package--------------------------------------###
 
 ## First we use 'plotSlopes' to estimate the simple slopes:
 plotOut1 <- plotSlopes(out2,
@@ -90,26 +98,8 @@ testOut2$hypotests
 testOut3 <- testSlopes(plotOut3)
 testOut3$hypotests
 
-## Use the 'testSlopes' function to conduct a Johnson-Neyman analysis:
-ls(testOut1)
-ls(testOut1$jn)
 
-## Region of significance:
-testOut1$jn$roots
-
-## Check interpretation:
-summary(out2)
-testOut3$hypotests
-
-## Visualize the region of significance:
-plot(testOut1)
-
-##----------------------------------------------------------------------------##
-
-### Binary Categorical Moderators ###
-
-## Load data:
-bfi <- readRDS(paste0(dataDir, "bfi_scored.rds"))
+###-Binary Categorical Moderators--------------------------------------------###
 
 ## Focal effect:
 out0 <- lm(neuro ~ agree, data = bfi)
@@ -129,12 +119,8 @@ bfi$gender2 <- relevel(bfi$gender, ref = "female")
 out2.1 <- lm(neuro ~ agree * gender2, data = bfi)
 summary(out2.1)
 
-##----------------------------------------------------------------------------##
 
-### Nominal Categorical Moderators (G > 2) ###
-
-## Load data:
-data(iris)
+###-Nominal Categorical Moderators (G > 2)-----------------------------------###
 
 ## Moderated model:
 out1 <- lm(Petal.Width ~ Sepal.Width * Species, data = iris)
@@ -165,3 +151,6 @@ plotOut1 <- plotSlopes(model      = out1,
 
 testOut1 <- testSlopes(plotOut1)
 testOut1$hypotests
+
+
+###-END----------------------------------------------------------------------###
