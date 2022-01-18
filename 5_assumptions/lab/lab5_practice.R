@@ -1,66 +1,29 @@
-### Title:    Stats & Methods Lab 6 Practice Script
+### Title:    Regression in R: Lab 5 Practice Script
 ### Author:   Kyle M. Lang
 ### Created:  2018-10-09
-### Modified: 2020-10-09
+### Modified: 2022-01-18
 
 
-###          ###
-### Overview ###
-###          ###
+###-Overview-----------------------------------------------------------------###
 
 ## You will practice regression diagnostics for MLR models.
 
 ## You will need the "airQual.rds" dataset which is available in the "data"
-## directory for this lab.
+## directory for this course.
 
 
-###                   ###
-### Tasks / Questions ###
-###                   ###
+###-Preliminaries------------------------------------------------------------###
 
+## 1) If you have not already done so, use the install.packages() function to
+##    install the "lmtest", and "sandwich" packages.
 
-##--Preliminaries-------------------------------------------------------------##
+## 2) Use the library() function to load the "lmtest", and "sandwich" packages.
 
-## 1) Use the "install.packages" function to install the "moments", "lmtest",
-##    and "sandwich" packages.
-
-## 2) Use the "library" function to load the "moments", "lmtest", and "sandwich"
-##    packages.
-
-## 3) Use the "readRDS" function to load the "airQual.rds" dataset into your
+## 3) Use the readRDS() function to load the "airQual.rds" dataset into your
 ##    workspace.
 
 
-##--Model specification-------------------------------------------------------##
-
-### Use the "airQual" data to complete the following:
-
-## 1) Regress "Temp" onto "Ozone", "Wind", and "Solar.R".
-
-## 2a) Plot the residuals from the model estimated in (1) against its fitted
-##     values.
-## 2b) Add a loess line to the residual plot from (2a).
-## 2c) What can you infer from the plots created in (2a) and (2b)?
-## 2d) What do you think is the best course of action to correct the issues
-##     represented in the plot from (2a)?
-
-## 3a) Conduct a Ramsey RESET for the model estimated in (1).
-##     -- Add the second and third powers of the fitted values.
-## 3b) What do the results of the RESET in (3a) tell you?
-
-## 4a) Update the model estimated in (1) three times. In each new model, add the
-##     square of exactly one of the predictor variables.
-##     -- Each of these three models should be identical to the model from (1)
-##        except for the inclusion of a different quadratic term.
-## 4b) For each of the updated models estimated in (4a) compute the same type of
-##     residual plot that you created in (2a) and conduct a Ramsey RESET as you
-##     did in (3a).
-## 4c) Which predictor's quadratic term most improved the model specification?
-## 4d) Does the RESET for the model you indicated in (4c) still suggest
-##     significant misspecification?
-
-
-##--Diagnostics---------------------------------------------------------------##
+###-Diagnostics--------------------------------------------------------------###
 
 ### Use the "airQual" data to complete the following:
 
@@ -68,23 +31,24 @@
 ##    -- In the following sections, this model will be referred to as "M0".
 
 ## 2a) Plot the residuals from the model estimated in (1) against its fitted
-##     values, and add a loess line to the plot.
+##     values.
 ## 2b) What can you infer from the plot created in (2a)?
 
-## 4a) Conduct a Breusch-Pagan test for the model estimated in (1).
-## 4b) What does the Breusch-Pagan test you conducted in (4a) tell you?
-## 4c) Do the Breusch-Pagan test and the residual plots from (2a) and (2b) agree?
+## 3a) Evaluate the homoscedasticity assumption for the model in (1) using a
+##     location-scale plot.
+## 3b) What conclusions can you draw from the plot in (3a)?
+
+## 4a) Evaluate the linearity assumption for the model in (1) using partial
+##     residual plots.
+## 4b) What can you infer from the plots in (4a)?
 
 ## 5a) Evaluate the normality of the residuals from the model in (1) using a Q-Q
-##     plot, the skewness, the kurtosis, the Shapiro-Wilk test, and the
-##     Kolmogorov-Smirnov test.
-## 5b) Do the results of the diagnostics you conducted for (5a) agree?
-## 5c) Create a kernel density plot of the residuals from the model in (1).
-## 5d) Judging by the information gained in (5a) and (5b), do you think it's
-##     safe to assume normally distributed errors for the model in (1)?
+##     plot.
+## 5b) Judging by the information gained in (5a), do you think it's safe to
+##     assume normally distributed errors for the model in (1)?
 
 
-##--Robust SEs----------------------------------------------------------------##
+###-Robust SEs---------------------------------------------------------------###
 
 ### Use the "airQual" data to complete the following:
 
@@ -106,7 +70,7 @@
 ##     estimates of the SEs. What differs when using robust SEs?
 
 
-##--Influential observations--------------------------------------------------##
+###-Influential observations-------------------------------------------------###
 
 ### Use the "airQual" data to complete the following:
 
@@ -128,19 +92,9 @@
 ## 3d) What are the observation numbers for the five most influential cases
 ##     according to the distances from (3a)?
 
-## 4a) Compute the DFFITS of M0.
-## 4b) Create an index plot of the DFFITS computed in (4a).
-## 4c) What can you infer from the plot in (4b)?
-## 4d) What are the observation numbers for the five most influential cases
-##     according to the DFFITS from (4a)?
-## 4e) Do the results from (4d) agree with the results from (3d)?
-## 4e) What do you notice about the set of observations flagged as influential
-##     cases in (4d) relative to the observations flagged as high leverage
-##     points in (2d) and those flagged as outliers in (1d)?
-
-## 5a) Remove the five most influential cases from (4d), and use the cleaned
-##     data to rerun M0.
-## 5b) Compare the results of the model in (5a) to the results of the original
+## 4a) Remove the five most influential cases flagged in (3d), and use the
+##     cleaned data to rerun M0.
+## 4b) Compare the results of the model in (4a) to the results of the original
 ##     M0. What changes when removing the influential cases?
 
-##----------------------------------------------------------------------------##
+###-END----------------------------------------------------------------------###

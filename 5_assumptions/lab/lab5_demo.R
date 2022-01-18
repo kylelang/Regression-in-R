@@ -5,8 +5,13 @@
 
 rm(list = ls(all = TRUE))
 
-library(car)   # For partial residual plots
-library(dplyr) # For data manipulation
+## Install the new packages we'll use:
+install.packages(c("sandwich", "lmtest"), repos = "http://cloud.r-project.org")
+
+library(car)      # For partial residual plots
+library(dplyr)    # For data manipulation
+library(sandwich) # For robust standard errors
+library(lmtest)   # For hypothesis tests using robust standard errors
 
 ## Load some data:
 data(Cars93, package = "MASS")
@@ -43,7 +48,7 @@ crPlot(out1, "Passengers")
 
 ###-Robust Standard Errors---------------------------------------------------###
 
-## Compute HC estimate of the ACOV:
+## Use sandwich::vcovHC() to compute the HC estimate of the ACOV:
 covHC1 <- vcovHC(out1)
 
 ## Do a robust test of the coefficients:
@@ -65,7 +70,7 @@ covHC1.2 <- vcovHC(out1.2)
 waldtest(out1, out1.2, vcov = covHC1.2)
 
 
-###-Another Model-------------------------------------------------------------##
+###-Another Model------------------------------------------------------------###
 
 out2 <- lm(MPG.city ~ Horsepower + Fuel.tank.capacity + Weight, data = Cars93)
 summary(out2)
@@ -89,7 +94,7 @@ plot(out2, which = 5)
 crPlots(out2)
 
 
-##-Outliers & High-Leverage Cases---------------------------------------------##
+###-Outliers & High-Leverage Cases-------------------------------------------###
 
 ## Externally studentized residuals to check for outliers:
 (sr2 <- rstudent(out2))
@@ -109,7 +114,7 @@ lev2
 plot(lev2)
 
 ## Store the observation numbers for the most extreme leverages:
-badLev2 <- lev2 %>% sort() %>% tail(2) %>% names() %>% as.numeric()
+badLev2 <- lev2 %>% sort() %>% tail(3) %>% names() %>% as.numeric()
 badLev2
 
 
@@ -119,12 +124,10 @@ badLev2
 (im2 <- influence.measures(out2))
 
 ## Compute individual measures of influence:
-(dff2 <- dffits(out2))
 (cd2  <- cooks.distance(out2))
 (dfb2 <- dfbetas(out2))
 
 ## Create index plots for measures of influence:
-plot(dff2)
 plot(cd2)
 
 plot(dfb2[ , 1])
@@ -133,12 +136,14 @@ plot(dfb2[ , 3])
 plot(dfb2[ , 4])
 
 ## Find the single most influential observation:
-(maxCd   <- which.max(cd2))
-(maxDff  <- which.max(abs(dff2)))
-(maxDfbI <- which.max(abs(dfb2[ , 1])))
+(maxCd    <- which.max(cd2))
+(maxDfbI  <- which.max(abs(dfb2[ , 1])))
+(maxDfbB1 <- which.max(abs(dfb2[ , 2])))
+(maxDfbB2 <- which.max(abs(dfb2[ , 3])))
+(maxDfbB3 <- which.max(abs(dfb2[ , 4])))
 
 
-###-Cleaning-----------------------------------------------------------------###
+###-Refit the Model----------------------------------------------------------###
 
 ## Exclude the most influential observation:
 Cars93.2 <- Cars93[-maxCd, ]
