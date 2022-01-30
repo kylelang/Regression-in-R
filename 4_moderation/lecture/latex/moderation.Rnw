@@ -1,7 +1,7 @@
 %%% Title:    Regression in R 5: Moderation
 %%% Author:   Kyle M. Lang
 %%% Created:  2017-09-12
-%%% Modified: 2022-01-13
+%%% Modified: 2022-01-30
 
 \documentclass[10pt]{beamer}
 \usetheme{Utrecht}
@@ -170,7 +170,7 @@ knit_theme$set('edit-kwrite')
 
 \begin{frame}{Equations}
   
-  The following derivation is adapted from \citet{hayes:2017}.
+  The following derivation is adapted from \citet{hayes:2018}.
   \vb
   \begin{itemize}
   \item When testing moderation, we hypothesize that the effect of $X$ on $Y$ 
@@ -862,7 +862,7 @@ p4 + geom_abline(slope     = coef(out66)["tangiblesat"],
 \begin{frame}[allowframebreaks]{References}
 
   \bibliographystyle{apacite}
-  \bibliography{../../../literature/bibtex/statMethRefs.bib}
+  \bibliography{../../../bibtex/winter_school_refs.bib}
 
 \end{frame}
 
