@@ -1,12 +1,9 @@
 ### Title:    Regression in R: Lab 4 Demonstration Script
 ### Author:   Kyle M. Lang
 ### Created:  2016-04-04
-### Modified: 2022-01-18
+### Modified: 2022-01-30
 
 rm(list = ls(all = TRUE))
-
-## Install the new packages we'll need:
-install.packages("rockchalk", repos = "http://cloud.r-project.org")
 
 library(dplyr)     # For data manipulation
 library(magrittr)  # For special pipes

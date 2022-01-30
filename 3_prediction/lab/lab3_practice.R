@@ -1,7 +1,7 @@
 ### Title:    Regression in R: Lab 3 Practice Script
 ### Author:   Kyle M. Lang
 ### Created:  2018-04-10
-### Modified: 2022-01-14
+### Modified: 2022-01-30
 
 
 ###-Overview-----------------------------------------------------------------###
@@ -16,8 +16,7 @@
 
 ## 1) Use the library() function to load the "MLmetrics" and "DAAG" packages.
 
-## 2) Use the paste0() function and the readRDS() function to load the "yps.rds"
-##    dataset into your workspace.
+## 2) Use the readRDS() function to load the "yps.rds" dataset.
 
 ## 3) Use the set.seed() function to set the random number seed.
 

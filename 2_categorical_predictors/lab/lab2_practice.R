@@ -1,26 +1,22 @@
 ### Title:    Regression in R: Lab 2 Practice Script
 ### Author:   Kyle M. Lang
 ### Created:  2018-09-24
-### Modified: 2022-01-14
+### Modified: 2022-01-30
 
 
 ###-Overview-----------------------------------------------------------------###
 
 ## You will practice fitting MLR models with categorical predictor variables.
 
-## You will need the built-in R datasets "bfi" (from the psychData package) and
+## You will need the built-in R datasets "bfi" (from the psychTools package) and
 ## "BMI" (from the wec) package.
 
 
 ###-Preliminaries------------------------------------------------------------###
 
-## 1) Use the "install.packages" function to install the "wec" and "psychData"
-##    packages.
+## 1) Use the library() function to load the "wec" package.
 
-## 2) Use the "library" function to load the "psychData" and "wec" packages.
-
-## 3) Use the "data" function to load the "bfi" and "BMI" datasets into your
-##    workspace.
+## 2) Use the data() function to load the "bfi" and "BMI" datasets.
 
 
 ###-Factors------------------------------------------------------------------###

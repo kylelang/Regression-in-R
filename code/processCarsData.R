@@ -1,6 +1,6 @@
 ### Title:    Process Cars93 Data into cars_data.rds
 ### Author:   Kyle M. Lang
-### Created:  2017-AUG-24
+### Created:  2017-08-24
 ### Modified: 2022-01-10
 
                                         #install.packages("wec", repos = "http://cloud.r-project.org")

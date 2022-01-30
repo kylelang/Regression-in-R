@@ -1,12 +1,9 @@
 ### Title:    Regression in R: Lab 5 Demonstration Script
 ### Author:   Kyle M. Lang
 ### Created:  2017-10-08
-### Modified: 2022-01-18
+### Modified: 2022-01-30
 
 rm(list = ls(all = TRUE))
-
-## Install the new packages we'll use:
-install.packages(c("sandwich", "lmtest"), repos = "http://cloud.r-project.org")
 
 library(car)      # For partial residual plots
 library(dplyr)    # For data manipulation

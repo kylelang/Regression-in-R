@@ -1,7 +1,7 @@
 ### Title:    Regression in R: Lab 5 Practice Script
 ### Author:   Kyle M. Lang
 ### Created:  2018-10-09
-### Modified: 2022-01-18
+### Modified: 2022-01-30
 
 
 ###-Overview-----------------------------------------------------------------###
@@ -14,13 +14,9 @@
 
 ###-Preliminaries------------------------------------------------------------###
 
-## 1) If you have not already done so, use the install.packages() function to
-##    install the "lmtest", and "sandwich" packages.
+## 1) Use the library() function to load the "lmtest" and "sandwich" packages.
 
-## 2) Use the library() function to load the "lmtest", and "sandwich" packages.
-
-## 3) Use the readRDS() function to load the "airQual.rds" dataset into your
-##    workspace.
+## 2) Use the readRDS() function to load the "airQual.rds" dataset.
 
 
 ###-Diagnostics--------------------------------------------------------------###

@@ -1,7 +1,7 @@
 ### Title:    Regression in R: Lab 4 Practice Script
 ### Author:   Kyle M. Lang
 ### Created:  2018-09-24
-### Modified: 2022-01-18
+### Modified: 2022-01-30
 
 
 ###-Overview-----------------------------------------------------------------###
@@ -15,16 +15,11 @@
 
 ###-Preliminaries------------------------------------------------------------###
 
-## 1) Use the "install.packages" function to install the "rockchalk" and "DAAG"
-##    packages.
+## 1) Use the library() function to load the "rockchalk" and "DAAG" packages.
 
-## 2) Use the "library" function to load the "rockchalk" and "DAAG" packages.
+## 2) Use the readRDS() function to load the "msq2.rds" dataset.
 
-## 3) Use the "readRDS" function to load the "msq2.rds" dataset into your
-##    workspace.
-
-## 4) Use the "data" function to load the "cps3" and "leafshape" datasets into
-##    your workspace.
+## 3) Use the data() function to load the "cps3" and "leafshape" datasets.
 
 
 ###-Continuous Variable Moderation-------------------------------------------###

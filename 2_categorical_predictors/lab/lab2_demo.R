@@ -1,11 +1,9 @@
 ### Title:    Regression in R: Lab 2 Demonstration Script
 ### Author:   Kyle M. Lang
 ### Created:  2017-09-08
-### Modified: 2022-01-14
+### Modified: 2022-01-30
 
 rm(list = ls(all = TRUE))
-
-install.packages("wec", repos = "http://cloud.r-project.org")
 
 library(wec) # For weighted effects codes
 

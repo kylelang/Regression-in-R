@@ -1,7 +1,7 @@
 ### Title:    Regression in R: Lab 1 Practice Script
 ### Author:   Kyle M. Lang
 ### Created:  2018-04-10
-### Modified: 2022-01-14
+### Modified: 2022-01-30
 
 
 ###-Overview-----------------------------------------------------------------###
@@ -14,12 +14,9 @@
 
 ###-Preliminaries------------------------------------------------------------###
 
-## 1) Use the "install.packages" function to install the "MLmetrics" package.
+## 1) Use the library() function to load the "MLmetrics" package.
 
-## 2) Use the "library" function to load the "MLmetrics" packages.
-
-## 3) Use the "paste0" function and the "readRDS" function to load the
-##    "longley.rds" data into your workspace.
+## 2) Use the readRDS() function to load the "longley.rds" data.
 
 
 ###-Linear Regression--------------------------------------------------------###

@@ -14,17 +14,11 @@
 
 ###-Preliminaries------------------------------------------------------------###
 
-## 1) Use the "install.packages" function to install the "MLmetrics" package.
-
-install.packages("MLmetrics", repos = "http://cloud.r-project.org")
-
-## 2) Use the "library" function to load the "MLmetrics" packages.
+## 1) Use the library() function to load the "MLmetrics" package.
 
 library(MLmetrics)
 
-## 3) Use the "paste0" function and the "readRDS" function to load the
-##    "longley.rds" data into your workspace.
-
+## 2) Use the readRDS() function to load the "longley.rds" data.
 
 dataDir <- "../../data/"
 fn1     <- "longley.rds"

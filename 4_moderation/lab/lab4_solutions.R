@@ -1,7 +1,7 @@
 ### Title:    Regression in R: Lab 4 Suggested Solutions
 ### Author:   Kyle M. Lang
 ### Created:  2018-09-24
-### Modified: 2022-01-18
+### Modified: 2022-01-30
 
 
 ###-Overview-----------------------------------------------------------------###
@@ -15,24 +15,17 @@
 
 ###-Preliminaries------------------------------------------------------------###
 
-## 1) Use the "install.packages" function to install the "rockchalk" and "DAAG"
-##    packages.
-
-install.packages(c("rockchalk", "DAAG"), repos = "http://cloud.r-project.org")
-
-## 2) Use the "library" function to load the "rockchalk" and "DAAG" packages.
+## 1) Use the library() function to load the "rockchalk" and "DAAG" packages.
 
 library(rockchalk)
 library(DAAG)
 
-## 3) Use the "readRDS" function to load the "msq2.rds" dataset into your
-##    workspace.
+## 2) Use the readRDS() function to load the "msq2.rds" dataset.
 
-dataDir <- "../data/"
+dataDir <- "../../data/"
 msq2    <- readRDS(paste0(dataDir, "msq2.rds"))
 
-## 4) Use the "data" function to load the "cps3" and "leafshape" datasets into
-##    your workspace.
+## 3) Use the data() function to load the "cps3" and "leafshape" datasets.
 
 data(cps3)
 data(leafshape)
@@ -137,22 +130,6 @@ dif <- tsOut1$hypotests[ , -1] - rbind(summary(out1)$coefficients["EA", ],
 check <- all(dif < .Machine$double.eps)
 
 ifelse(check, "YES", "NO")
-
-## 4a) Use the 'rockchalk' package to implement a Johnson-Neyman analysis of the
-##     interaction you estimated in (1a).
-
-### We already did this to answer (3a).
-
-## 4b) What are the boundaries of the Johnson-Neyman region of significance?
-
-tsOut1$jn$roots
-
-## 4c) Where in the distribution of Negative Affect is the effect of Energetic
-##     Arousal on Tense Arousal (controlling for Positive Affect) statistically
-##     significant?
-
-### The simple slope of Energetic Arousal on Tense Arousal is significant at all
-### levels of Negative Affect.
 
 
 ###-Binary Categorical Moderators--------------------------------------------###

@@ -1,7 +1,7 @@
 ### Title:    Regression in R: Lab 3 Suggested Solutions
 ### Author:   Kyle M. Lang
 ### Created:  2018-04-10
-### Modified: 2022-01-14
+### Modified: 2022-01-30
 
 
 ###-Overview-----------------------------------------------------------------###
@@ -19,8 +19,7 @@
 library(MLmetrics)
 library(DAAG)
 
-## 2) Use the paste0() function and the readRDS() function to load the "yps.rds"
-##    dataset into your workspace.
+## 2) Use the readRDS() function to load the "yps.rds" dataset.
 
 dataDir <- "../../data/"
 yps     <- readRDS(paste0(dataDir, "yps.rds"))

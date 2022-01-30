@@ -1,11 +1,9 @@
 ### Title:    Regression in R: Lab 1 Demonstration Script
 ### Author:   Kyle M. Lang
 ### Created:  2017-09-08
-### Modified: 2022-01-14
+### Modified: 2022-01-30
 
 ###-Preliminaries------------------------------------------------------------###
-
-install.packages("MLmetrics", repos = "http://cloud.r-project.org")
 
 rm(list = ls(all = TRUE)) # Clear workspace
 
