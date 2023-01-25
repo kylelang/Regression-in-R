@@ -17,7 +17,7 @@ library(lmtest)   # For hypothesis tests using robust standard errors
 data(Cars93, package = "MASS")
 
 ################################################################################
-## PRACTICE PROBLEM 4.1
+## PRACTICE PROBLEM 5.1
 ##
 ## Use the readRDS() function to load the "airQual.rds" dataset.
 ##
@@ -33,7 +33,7 @@ out1 <- lm(Price ~ Horsepower + MPG.city + Passengers, data = Cars93)
 summary(out1)
 
 ################################################################################
-## PRACTICE PROBLEM 4.2
+## PRACTICE PROBLEM 5.2
 ##
 ## Regress "Temp" onto "Ozone", "Wind", "Solar.R", and the square of "Ozone".
 ## - In the following practice problems, this model will be referred to as "M0".
@@ -64,9 +64,9 @@ crPlot(out1, "MPG.city")
 crPlot(out1, "Passengers")
 
 ################################################################################
-## PRACTICE PROBLEM 4.3
+## PRACTICE PROBLEM 5.3
 ##
-## Use the model you estimated in PP 4.2 (i.e., M0) to complete the following
+## Use the model you estimated in PP 5.2 (i.e., M0) to complete the following
 ## tasks and answer the associated questions.
 ##
 ## a) Plot the residuals from the model against its fitted values.
@@ -94,10 +94,10 @@ coeftest(out1, vcov = covHC1)
 summary(out1)$coefficients
 
 ################################################################################
-## PRACTICE PROBLEM 4.4
+## PRACTICE PROBLEM 5.4
 ##
 ## a) Estimate the heteroscedasticity consistent (HC) asymptotic covariance
-##    matrix for M0 (i.e., the model from PP 4.2).
+##    matrix for M0 (i.e., the model from PP 5.2).
 ## b) Use the HC covariance matrix from (a) to test the coefficients of M0 with
 ##    robust SEs.
 ## c) Compare the results from (b) to the default tests of M0's coefficients.
@@ -118,7 +118,7 @@ covHC1.2 <- vcovHC(out1.2)
 waldtest(out1, out1.2, vcov = covHC1.2)
 
 ################################################################################
-## PRACTICE PROBLEM 4.5
+## PRACTICE PROBLEM 5.5
 ##
 ## Update M0 by adding the squares of "Wind" and "Solar.R" and re-estimating the
 ## model.
@@ -126,9 +126,9 @@ waldtest(out1, out1.2, vcov = covHC1.2)
 ################################################################################
 
 ################################################################################
-## PRACTICE PROBLEM 4.6
+## PRACTICE PROBLEM 5.6
 ##
-## Use the models you estimated in PP 4.2 and PP 4.5 to complete the following
+## Use the models you estimated in PP 5.2 and PP 5.5 to complete the following
 ## tasks.
 ##
 ## a) Using HC estimates of the SEs, conduct a nested model comparison to test
@@ -180,9 +180,9 @@ badSr2
 
 
 ################################################################################
-## PRACTICE PROBLEM 4.7
+## PRACTICE PROBLEM 5.7
 ##
-## a) Compute the studentized residuals of M0 (i.e., the model from PP 4.2).
+## a) Compute the studentized residuals of M0 (i.e., the model from PP 5.2).
 ## b) Create an index plot of the studentized residuals computed in (a).
 ##    - What can you infer from this plot?
 ## c) What are the observation numbers for the two most probable outliers
@@ -202,7 +202,7 @@ badLev2 <- lev2 %>% sort() %>% tail(3) %>% names() %>% as.numeric()
 badLev2
 
 ################################################################################
-## PRACTICE PROBLEM 4.8
+## PRACTICE PROBLEM 5.8
 ##
 ## a) Compute the leverages of M0.
 ## b) Create an index plot of the leverages computed in (a).

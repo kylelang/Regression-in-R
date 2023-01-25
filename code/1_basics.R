@@ -157,7 +157,7 @@ mse4
 ##    "Year" and "Population"?
 ## b) Is this increase in R-squared significantly different from zero at the
 ##    alpha = 0.05 level?
-## c) What is the value of the test statistic that you used to answer (1b)?
+## c) What is the value of the test statistic that you used to answer (b)?
 ##
 ################################################################################
 

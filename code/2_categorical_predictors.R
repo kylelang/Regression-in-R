@@ -116,12 +116,12 @@ summary(out2)
 ##
 ## a) Run a linear regression model wherein "BMI" is predicted by dummy-coded
 ##    versions of "sex" and "education".
-##    -- Set the reference group to "male" for "sex".
-##    -- Set the reference group to "highest" for "education".
+##    - Set the reference group to "male" for "sex".
+##    - Set the reference group to "highest" for "education".
 ## b) Is there a significant effect (at alpha = 0.05) of "sex" on "BMI" after
 ##    controlling for "education"?
-## c) According to the model from (3a), what is the expected BMI for males in
-##     the highest education group?
+## c) According to the model from (a), what is the expected BMI for males in
+##    the highest education group?
 ##
 ################################################################################
 
