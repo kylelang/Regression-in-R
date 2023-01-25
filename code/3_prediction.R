@@ -209,8 +209,13 @@ MSE(y_pred = predict(out4, newdata = ins2$test), y_true = ins2$test$charges)
 ################################################################################
 ## PRACTICE PROBLEM 3.10
 ##
-## Use the testing data that you set aside in PP 3.6 to estimate the prediction
-## error (i.e., test set MSE) of the model chosen in PP 3.9.
+## a) Use the testing data that you set aside in PP 3.6 to estimate the
+##    prediction error (i.e., test set MSE) of the model chosen in PP 3.9.
+## b) Use the testing data that you set aside in PP 3.6 to estimate confidence
+##    intervals for the predicted conditional means from the model chosen in
+##    PP 3.9.
+## c) Use the testing data that you set aside in PP 3.6 to estimate prediction
+##    intervals for the model chosen in PP 3.9.
 ##
 ################################################################################
 

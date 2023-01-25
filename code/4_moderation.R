@@ -234,7 +234,7 @@ bfi %>%
 ################################################################################
 ## PRACTICE PROBLEM 4.9
 ##
-## Visualize the simple slopes you estimated in PP 4.8 in an appropriate way.
+## Visualize the simple slopes from PP 4.8 in an appropriate way.
 ##
 ################################################################################
 
