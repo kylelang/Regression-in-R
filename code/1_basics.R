@@ -1,4 +1,4 @@
-### Title:    Regression in R: Basics
+### Title:    Regression in R 1: Basics
 ### Author:   Kyle M. Lang
 ### Created:  2017-09-08
 ### Modified: 2023-01-25
