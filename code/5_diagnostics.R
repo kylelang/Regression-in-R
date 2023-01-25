@@ -40,13 +40,16 @@ summary(out1)
 ##
 ################################################################################
 
+## Generate all diagnostic plots:
+plot(out1)
+
 ## Residuals vs. Predicted plot:
 plot(out1, which = 1)
 
-## Q-Q Plot:
+## QQ Plot:
 plot(out1, which = 2)
 
-## Scale-Location Plot:
+## Location-Scale Plot:
 plot(out1, which = 3)
 
 ## Cook's Distance Plot:
@@ -253,7 +256,7 @@ plot(dfb2[ , 4])
 ## a) Compute the DFFITS values for M0.
 ## b) Create an index plot of the DFFITS values computed in (a).
 ##    - What can you infer from this plot?
-## c) What are the observation numbers for the four most influential cases
+## c) What are the observation numbers for the five most influential cases
 ##    according to the DFFITS values from (a)?
 ##
 ################################################################################
@@ -270,7 +273,7 @@ plot(dfb2[ , 4])
 ################################################################################
 
 
-###-Refit the Model----------------------------------------------------------###
+###-Effects of Influential Observations--------------------------------------###
 
 ## Exclude the most influential observation:
 Cars93.2 <- Cars93[-maxCd, ]

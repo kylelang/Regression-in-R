@@ -1,4 +1,4 @@
-### Title:    Regression in R 2: Suggested Solutions to Practice Problems
+### Title:    Suggested Solutions 2: Categorical Predictors
 ### Author:   Kyle M. Lang
 ### Created:  2018-09-24
 ### Modified: 2023-01-25

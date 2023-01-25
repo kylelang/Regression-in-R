@@ -1,4 +1,4 @@
-### Title:    Regression in R 4: Suggested Solutions for Practice Problems
+### Title:    Suggested Solutions 4: Moderation
 ### Author:   Kyle M. Lang
 ### Created:  2018-09-24
 ### Modified: 2023-01-25
@@ -275,6 +275,16 @@ table(leafshape$location)[best]
 
 ### We only have 9 observations from Tasmania. The estimated simple slope for
 ### Tasmania is going to be very sensitive to those particular 9 observations.
+
+###--------------------------------------------------------------------------###
+
+## Alternatively, we can get all of the statistics we need to answer 4.13 in one
+## shot via rockchalk routines.
+
+ss3 <- plotSlopes(out3, plotx = "bladewid", modx = "location") %>%
+    testSlopes()
+
+ss3$hypotests
 
 
 ###-END----------------------------------------------------------------------###

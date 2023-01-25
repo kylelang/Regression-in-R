@@ -1,4 +1,4 @@
-### Title:    Regression in R 1: Suggested Solutions to Practice Problems
+### Title:    Suggested Solutions 1: Basics
 ### Author:   Kyle M. Lang
 ### Created:  2018-04-10
 ### Modified: 2023-01-25
