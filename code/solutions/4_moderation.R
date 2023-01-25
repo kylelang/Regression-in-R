@@ -39,13 +39,6 @@ coef(out1)["EA:NegAff"]
 ##       the relationship between Energetic Arousal and Tense Arousal, after
 ##       controlling for Positive Affect?
 
-### Define a function to extract p-values from a fitted lm object:
-getP <- function(obj, what) summary(obj)$coef[what, "Pr(>|t|)"]
-
-### Define function to answer yes/no significance questions:
-isSig <- function(obj, what, alpha = 0.05)
-    ifelse(getP(obj, what) < alpha, "YES", "NO")
-
 isSig(out1, "EA:NegAff")
 
 ## 4.3c) After controlling for Positive Affect, how does Negative Affect impact

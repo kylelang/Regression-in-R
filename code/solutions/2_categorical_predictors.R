@@ -80,13 +80,6 @@ summary(out1)
 ## 2.5b) Is there a significant effect (at alpha = 0.05) of "sex" on "BMI" after
 ##       controlling for "education"?
 
-### Define a function to extract p-values from a fitted lm object:
-getP <- function(obj, what) summary(obj)$coef[what, "Pr(>|t|)"]
-
-### Define function to answer yes/no significance questions:
-isSig <- function(obj, what, alpha = 0.05)
-    ifelse(getP(obj, what) < alpha, "YES", "NO")
-
 isSig(out1, "sexfemale")
 
 ## 2.5c) According to the model from (a), what is the expected BMI for males in

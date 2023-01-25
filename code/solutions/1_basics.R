@@ -28,13 +28,6 @@ coef(out1)["Year"]
 ## 1.2c) Is the effect of "Year" on "GNP" statistically significant at the
 ##       alpha = 0.05 level?
 
-## Define a function to extract p-values from a fitted lm object:
-getP <- function(obj, what) summary(obj)$coef[what, "Pr(>|t|)"]
-
-## Define function to answer yes/no significance questions:
-isSig <- function(obj, what, alpha = 0.05)
-    ifelse(getP(obj, what) < alpha, "YES", "NO")
-
 isSig(out1, "Year")
 
 ## 1.2d) Is the effect of "Year" on "GNP" statistically significant at the

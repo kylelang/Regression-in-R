@@ -146,13 +146,6 @@ contrasts(iris$Species3)
 
 ## OR ##
 
-## Define a function to automatically fix EC names:
-fixEcNames <- function(x) {
-    tmp                    <- contrasts(x)
-    colnames(contrasts(x)) <- rownames(tmp)[rowSums(tmp) > 0]
-    x
-}
-
 iris$Species3 <- fixEcNames(iris$Species3)
 contrasts(iris$Species3)
 
@@ -172,9 +165,6 @@ tmp <- relevel(iris$Species, ref = "versicolor")
 
 levels(iris$Species)
 levels(tmp)
-
-## Define a function to automatically change the omitted group:
-changeOmitted <- function(x) relevel(x, ref = levels(x)[nlevels(x)])
 
 tmp <- changeOmitted(iris$Species)
 
