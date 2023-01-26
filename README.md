@@ -55,7 +55,7 @@ execute the necessary command.
 key.
 
         install.packages(c("MLmetrics",
-			               "dplyr",
+		                   "dplyr",
 						   "magrittr",
                            "wec",
                            "psychTools",
