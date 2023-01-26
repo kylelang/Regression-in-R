@@ -74,16 +74,3 @@ If you are asked the following question:
 
 Type `Yes` in the console, and press the "Enter/Return" key (or click the 
 corresponding button if the question presents as a dialog box). 
-
-  install.packages(c("MLmetrics",
-                     "dplyr",
-  				   "magrittr",
-                     "wec",
-                     "psychTools",
-                     "DAAG",
-                     "rockchalk",
-                     "car",
-                     "sandwich",
-                     "lmtest"),
-                   repos = "http://cloud.r-project.org",
-                   dependencies = TRUE)
