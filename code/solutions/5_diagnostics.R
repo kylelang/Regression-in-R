@@ -1,8 +1,12 @@
 ### Title:    Suggested Solutions 5: Diagnostics
 ### Author:   Kyle M. Lang
 ### Created:  2018-10-09
-### Modified: 2023-01-25
+### Modified: 2023-01-26
 
+library(car)      
+library(dplyr)    
+library(sandwich) 
+library(lmtest)   
 
 ###-Preliminaries------------------------------------------------------------###
 
@@ -30,7 +34,7 @@ plot(m0, 1)
 ### THE MODEL DOES NOT APPEAR TO BE MISSPECIFIED, BUT THERE MAY BE SOME
 ### HETEROSCEDASTICITY.
 
-## 5.3b) Evaluate the homoscedasticity assumption using a location-scale plot.
+## 5.3b) Evaluate the homoscedasticity assumption using a scale-location plot.
 ##       - What conclusions can you draw from this plot?
 
 plot(m0, 3)
@@ -45,8 +49,8 @@ crPlots(m0)
 ### The "Wind" and "Solar.R" variables seem like they may have nonlinear
 ### relations with "Temp".
 
-## 5.3d) Evaluate the normality of the residuals using a QQ plot.
-##       - Judging by the information gained from this QQ plot, do you think
+## 5.3d) Evaluate the normality of the residuals using a Q-Q plot.
+##       - Judging by the information gained from this Q-Q plot, do you think
 ##         it's safe to assume normally distributed errors?
 
 plot(m0, 2)
@@ -177,7 +181,13 @@ plot(dff0)
 ## 5.10c) What are the observation numbers for the five most influential cases
 ##        according to the DFFITS values from (a)?
 
-dff0 %>% abs() %>% sort() %>% tail(5) %>% names() %>% as.numeric()
+badDff <- dff0 %>% abs() %>% sort() %>% tail(5) %>% names() %>% as.numeric()
+badDff
+
+## 5.10d) Are the observations flagged in (c) the same as those flagged in
+##        PP 5.9c?
+
+all.equal(badCd, badDff) %>% ifelse("Yes", "No")
 
 ###--------------------------------------------------------------------------###
 

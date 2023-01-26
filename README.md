@@ -40,7 +40,7 @@ ahead of time.
 
 #### Method 1
 
-Open the script saved as [`code/install_packages.R`](code/install_packages.R)
+Open the script saved as [`code/support/install_packages.R`](code/support/install_packages.R)
 in `RStudio`, and run the contents.
 
 - You can run the contents of the script by selecting all the text and hitting 
@@ -56,11 +56,11 @@ key.
 
         install.packages(c("MLmetrics",
                            "dplyr",
+						   "magrittr",
                            "wec",
                            "psychTools",
                            "DAAG",
                            "rockchalk",
-                           "magrittr",
                            "car",
                            "sandwich",
                            "lmtest"),

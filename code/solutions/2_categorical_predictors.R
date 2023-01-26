@@ -1,15 +1,22 @@
 ### Title:    Suggested Solutions 2: Categorical Predictors
 ### Author:   Kyle M. Lang
 ### Created:  2018-09-24
-### Modified: 2023-01-25
+### Modified: 2023-01-26
+
+library(wec)
+library(magrittr)
+library(dplyr)
+
+source("code/support/helper_functions.R")
 
 
 ###-Preliminaries------------------------------------------------------------###
 
-## 2.1) Use the data() function to load the "bfi" and "BMI" datasets.
+## 2.1) Use the data() function to load the "bfi" dataset from the psychTools 
+##      and the "BMI" dataset from the wec package.
 
 data(bfi, package = "psychTools")
-data(BMI, package = "psychTools")
+data(BMI)
 
 
 ###-Factors------------------------------------------------------------------###
@@ -22,8 +29,6 @@ data(BMI, package = "psychTools")
 ## 2.2b) Create factors for the "gender" and "education" variables with sensible
 ##       sets of labels for the levels.
 
-library(magrittr)
-library(dplyr)
 
 bfi %<>% mutate(gender = factor(gender,
                                 levels = c(1, 2),
@@ -136,12 +141,12 @@ isSig(out4, "educationhighest")
 ##       group and the average BMI across education groups, after controlling
 ##       for childlessness?
 
-coef(out4)["educationmiddle"]
+coef(out3)["educationmiddle"]
 
 ## 2.8e) Is the difference you reported in (d) significantly different from
 ##       zero, at the alpha = 0.05 level?
 
-isSig(out4, "educationmiddle")
+isSig(out3, "educationmiddle")
 
 
 ###-Weighted Effects Codes---------------------------------------------------###
@@ -206,7 +211,7 @@ summary(out7)
 av7  <- anova(out7, out6)
 av7
 
-(av7[2, "Pr(>F)"] < 0.05) %>% ifelse("YES", "NO")
+isSig(av7)
 
 ## 2.12b) What is the value of the test statistic that you used to answer (a)?
 

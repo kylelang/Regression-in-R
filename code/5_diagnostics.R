@@ -1,7 +1,7 @@
 ### Title:    Regression in R 5: Diagnostics
 ### Author:   Kyle M. Lang
 ### Created:  2017-10-08
-### Modified: 2023-01-25
+### Modified: 2023-01-26
 
 rm(list = ls(all = TRUE))
 
@@ -46,10 +46,10 @@ plot(out1)
 ## Residuals vs. Predicted plot:
 plot(out1, which = 1)
 
-## QQ Plot:
+## Q-Q Plot:
 plot(out1, which = 2)
 
-## Location-Scale Plot:
+## Scale-Location Plot:
 plot(out1, which = 3)
 
 ## Cook's Distance Plot:
@@ -74,12 +74,12 @@ crPlot(out1, "Passengers")
 ##
 ## a) Plot the residuals from the model against its fitted values.
 ##    - What can you infer from this plot?
-## b) Evaluate the homoscedasticity assumption using a location-scale plot.
+## b) Evaluate the homoscedasticity assumption using a scale-location plot.
 ##    - What conclusions can you draw from this plot?
 ## c) Evaluate the linearity assumption using partial residual plots.
 ##    - What can you infer from these plots?
-## d) Evaluate the normality of the residuals using a QQ plot.
-##    - Judging by the information gained from this QQ plot, do you think it's
+## d) Evaluate the normality of the residuals using a Q-Q plot.
+##    - Judging by the information gained from this Q-Q plot, do you think it's
 ##      safe to assume normally distributed errors?
 ##
 ################################################################################
@@ -258,6 +258,7 @@ plot(dfb2[ , 4])
 ##    - What can you infer from this plot?
 ## c) What are the observation numbers for the five most influential cases
 ##    according to the DFFITS values from (a)?
+## d) Are the observations flagged in (c) the same as those flagged in PP 5.9c?
 ##
 ################################################################################
 

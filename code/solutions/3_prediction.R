@@ -1,8 +1,11 @@
 ### Title:    Suggested Solutions 3: Prediction
 ### Author:   Kyle M. Lang
 ### Created:  2018-04-10
-### Modified: 2023-01-25
+### Modified: 2023-01-26
 
+library(MLmetrics)
+library(DAAG)
+library(dplyr)
 
 ###-Data I/O-----------------------------------------------------------------###
 
@@ -171,28 +174,17 @@ yps2  <- split(yps, index)
 ## 3.12)  Use the training data from PP 3.11 to run 5-fold cross-validation
 ##        comparing the three models defined in PP 3.3b, PP 3.3c, and PP 3.3c.
 
-stem <- "Number.of.friends ~ Age + Gender"
-mods <- paste(stem,
-              c("Keeping.promises + Empathy + Friends.versus.money + Charity",
-                "Branded.clothing + Entertainment.spending + Spending.on.looks + Spending.on.gadgets",
-                "Workaholism + Reliability + Responding.to.a.serious.letter + Assertiveness"),
-              sep = " + ")
-
-### Check the formulas by training the models:
-fits <- lapply(mods, lm, data = yps2$train)
-lapply(fits, summary)
-
 ### Perform the cross-validation:
-cvOut <- lapply(fits,
+cvOut <- lapply(out2,
                 function(f, data)
-                    CVlm(data    = data,
-                         form.lm = f,
-                         m       = 5,
-                         seed    = 235711,
-                         plotit  = FALSE),
+                  CVlm(data    = data,
+                       form.lm = f,
+                       m       = 5,
+                       seed    = 235711,
+                       plotit  = FALSE),
                 data = yps2$train)
 
-(cve <- sapply(cvOut, attr, which = "ms"))
+(cve <- sapply(cvOut2, attr, which = "ms"))
 
 ###--------------------------------------------------------------------------###
 
@@ -205,9 +197,10 @@ cve[which.min(cve)]
 ##        and PP 3.9?
 
 c(which.min(testMse1), which.min(validMse2), which.min(cve)) %>%
-    unique() %>%
-    (length() == 1) %>%
-    ifelse("YES", "NO")
+  unique() %>%
+  length() %>%
+  {. == 1} %>% 
+  ifelse("YES", "NO")
 
 ## 3.13c) Use the testing data that you set aside in PP 3.11 to estimate the
 ##        prediction error (i.e., test set MSE) of the model chosen in (a).

@@ -1,7 +1,11 @@
 ### Title:    Suggested Solutions 1: Basics
 ### Author:   Kyle M. Lang
 ### Created:  2018-04-10
-### Modified: 2023-01-25
+### Modified: 2023-01-26
+
+library(MLmetrics)
+source("code/support/helper_functions.R")
+
 
 ###-Data I/O-----------------------------------------------------------------###
 
@@ -108,7 +112,7 @@ summary(out2)$r.squared - summary(out1)$r.squared
 av1 <- anova(out1, out2)
 av1
 
-ifelse(av1[2, "Pr(>F)"] < 0.05, "YES", "NO")
+isSig(av1)
 
 ## 1.5c) What is the value of the test statistic that you used to answer (b)?
 
@@ -143,3 +147,4 @@ names(which.min(mse))
 
 
 ###-END----------------------------------------------------------------------###
+

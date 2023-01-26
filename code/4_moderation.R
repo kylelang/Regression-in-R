@@ -1,7 +1,7 @@
 ### Title:    Regression in R 4: Moderation
 ### Author:   Kyle M. Lang
 ### Created:  2016-04-04
-### Modified: 2023-01-25
+### Modified: 2023-01-26
 
 rm(list = ls(all = TRUE))
 
@@ -166,6 +166,20 @@ testOut3$hypotests
 ##
 ################################################################################
 
+## When the moderator is continuous, the testSlopes() function also calculates
+## the Johnson-Neyman region of significance:
+testOut1$jn$roots
+summary(out2)$coefficients
+
+################################################################################
+## PRACTICE PROBLEM 4.6
+##
+## Run a Johnson-Neyman analysis on the model you estimated in PP 4.2.
+## - What values of Negative Affect produce significant simple slopes of
+##   Energetic Arousal on Tense Arousal, after controlling for Positive Affect?
+##
+################################################################################
+
 
 ###-Binary Categorical Moderators--------------------------------------------###
 
@@ -188,7 +202,7 @@ bfi %>%
     summary()
 
 ################################################################################
-## PRACTICE PROBLEM 4.6
+## PRACTICE PROBLEM 4.7
 ##
 ## Use the "cps3" data to estimate the following model.
 ##
@@ -201,9 +215,9 @@ bfi %>%
 ################################################################################
 
 ################################################################################
-## PRACTICE PROBLEM 4.7
+## PRACTICE PROBLEM 4.8
 ##
-## Use the results of the model you estimated in PP 4.6 to answer the following
+## Use the results of the model you estimated in PP 4.7 to answer the following
 ## questions.
 ##
 ## b) After controlling for 1974 Earnings, does being Hispanic significantly
@@ -216,9 +230,9 @@ bfi %>%
 ################################################################################
 
 ################################################################################
-## PRACTICE PROBLEM 4.8
+## PRACTICE PROBLEM 4.9
 ##
-## Answer the following questions w.r.t. the model you estimated in PP 4.6.
+## Answer the following questions w.r.t. the model you estimated in PP 4.7.
 ##
 ## a) What is the simple slope of Years of Education on 1975 Earnings
 ##    (controlling for 1974 Earnings) for Non-Hispanic people?
@@ -232,9 +246,9 @@ bfi %>%
 ################################################################################
 
 ################################################################################
-## PRACTICE PROBLEM 4.9
+## PRACTICE PROBLEM 4.10
 ##
-## Visualize the simple slopes from PP 4.8 in an appropriate way.
+## Visualize the simple slopes from PP 4.9 in an appropriate way.
 ##
 ################################################################################
 
@@ -273,7 +287,7 @@ testOut1 <- testSlopes(plotOut1)
 testOut1$hypotests
 
 ################################################################################
-## PRACTICE PROBLEM 4.10
+## PRACTICE PROBLEM 4.11
 ##
 ## Use the "leafshape" data to answer the following questions.
 ##
@@ -282,9 +296,8 @@ testOut1$hypotests
 ##
 ################################################################################
 
-
 ################################################################################
-## PRACTICE PROBLEM 4.11
+## PRACTICE PROBLEM 4.12
 ##
 ## Use the "leafshape" data to estimate the following model.
 ##
@@ -294,9 +307,9 @@ testOut1$hypotests
 ################################################################################
 
 ################################################################################
-## PRACTICE PROBLEM 4.12
+## PRACTICE PROBLEM 4.13
 ##
-## Use the results of the model you estimated in PP 4.11 to answer the following
+## Use the results of the model you estimated in PP 4.12 to answer the following
 ## questions.
 ##
 ## a) Does the effect of Leaf Width on Leaf Length differ significantly
@@ -306,9 +319,9 @@ testOut1$hypotests
 ################################################################################
 
 ################################################################################
-## PRACTICE PROBLEM 4.13
+## PRACTICE PROBLEM 4.14
 ##
-## Answer the following questions w.r.t. the model you estimated in PP 4.11.
+## Answer the following questions w.r.t. the model you estimated in PP 4.12.
 ##
 ## a) What is the simple slope of Leaf Width on Leaf Length in Sabah?
 ## b) Is the simple slope you reported in (a) significant at the alpha = 0.05
@@ -321,7 +334,7 @@ testOut1$hypotests
 ##    level?
 ## g) In which Location is the effect of Leaf Width on Leaf Length strongest?
 ## h) What caveat might you want to place on the conclusion reported in (g)?
-##    - HINT: Consider your answers for PP 4.10.
+##    - HINT: Consider your answers for PP 4.11.
 ##
 ################################################################################
 

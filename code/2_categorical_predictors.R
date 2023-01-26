@@ -1,7 +1,7 @@
 ### Title:    Regression in R 2: Categorical Predictors
 ### Author:   Kyle M. Lang
 ### Created:  2017-09-08
-### Modified: 2023-01-25
+### Modified: 2023-01-26
 
 rm(list = ls(all = TRUE))
 
@@ -9,6 +9,9 @@ rm(list = ls(all = TRUE))
 ###-Preliminaries------------------------------------------------------------###
 
 library(wec) # For weighted effects codes
+
+## Define some helper functions
+source("code/support/helper_functions.R")
 
 ## Load the iris data
 data(iris)
@@ -21,8 +24,8 @@ iris <- iris[sample(1:nrow(iris), 100), ]
 ################################################################################
 ## PRACTICE PROBLEM 2.1
 ##
-## Use the data() function to load the "bfi" and "BMI" datasets from the
-## psychTools package.
+## Use the data() function to load the "bfi" dataset from the psychTools 
+## and the "BMI" dataset from the wec package.
 ##
 ################################################################################
 
@@ -144,8 +147,8 @@ contrasts(iris$Species3)
 colnames(contrasts(iris$Species3)) <- c("setosa", "versicolor")
 contrasts(iris$Species3)
 
-## OR ##
-
+## Or use the fixEcNames() function defined in helper_functions.R to
+## automatically achieve the same effect:
 iris$Species3 <- fixEcNames(iris$Species3)
 contrasts(iris$Species3)
 
@@ -166,6 +169,8 @@ tmp <- relevel(iris$Species, ref = "versicolor")
 levels(iris$Species)
 levels(tmp)
 
+## The above procedure is implemented in the changeOmitted() function defined
+## in the helper_functions.R script:
 tmp <- changeOmitted(iris$Species)
 
 levels(iris$Species)
@@ -340,3 +345,4 @@ anova(out8.1, out8.2)
 
 
 ###-END----------------------------------------------------------------------###
+

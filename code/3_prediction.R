@@ -1,7 +1,7 @@
 ### Title:    Regression in R 3: Prediction
 ### Author:   Kyle M. Lang
 ### Created:  2017-09-08
-### Modified: 2023-01-25
+### Modified: 2023-01-26
 
 
 ###-Preliminaries------------------------------------------------------------###
@@ -223,7 +223,15 @@ MSE(y_pred = predict(out4, newdata = ins2$test), y_true = ins2$test$charges)
 ###-K-Fold Cross-Validation--------------------------------------------------###
 
 ## Cross-validate a single model using 10-fold cross-validation
-CVlm(data = ins, form.lm = charges ~ age + sex + children + region, m = 10)
+cvOut <- 
+  CVlm(data = ins, form.lm = charges ~ age + sex + children + region, m = 10)
+
+## Check the results:
+head(cvOut, 20)
+attributes(cvOut)
+
+## Extract the estimated CVE:
+attr(cvOut, "ms")
 
 ## Use DAAG::CVlm() to cross-validate a list of models:
 cvOut <- lapply(fits,
