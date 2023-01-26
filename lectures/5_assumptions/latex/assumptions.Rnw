@@ -1,7 +1,7 @@
 %%% Title:    Regression in R 6: Assumptions & Diagnostics
 %%% Author:   Kyle M. Lang
 %%% Created:  2018-04-12
-%%% Modified: 2022-01-14
+%%% Modified: 2023-01-26
 
 \documentclass[10pt]{beamer}
 \usetheme{Utrecht}
@@ -25,9 +25,6 @@
 <<setup, include = FALSE, cache = FALSE>>=
 set.seed(235711)
 
-dataDir <- "../data/"
-codeDir <- "../../../code/"
-
 library(knitr)
 library(ggplot2)
 library(MASS)
@@ -37,7 +34,7 @@ library(MLmetrics)
 library(dplyr)
 library(car)
 
-source(paste0(codeDir, "supportFunctions.R"))
+source("../../../code/support/supportFunctions.R")
 
 data(Cars93)
 
@@ -882,13 +879,13 @@ p1 <- gg0(x = x, y = y, points = FALSE) +
     xlab("Horsepower") +
     ylab("Price")
 
-p1 + geom_smooth(method = "lm", se = FALSE, size = 2) +
-geom_smooth(mapping  = aes(x = x2, y = y2),
-            method   = "lm",
-            se       = FALSE,
-            color    = "red",
-            linetype = "dashed",
-            size     = 2) +
+p1 + geom_smooth(method = "lm", se = FALSE, linewidth = 2) +
+geom_smooth(mapping   = aes(x = x2, y = y2),
+            method    = "lm",
+            se        = FALSE,
+            color     = "red",
+            linetype  = "dashed",
+            linewidth = 2) +
 scale_colour_manual(values = c("black", "red"))
 @
 
@@ -971,13 +968,13 @@ p1 <- gg0(x = x, y = y, points = FALSE) +
     xlab("Horsepower") +
     ylab("Price")
 
-p1 + geom_smooth(method = "lm", se = FALSE, size = 2) +
-geom_smooth(mapping  = aes(x = x2, y = y2),
-            method   = "lm",
-            se       = FALSE,
-            color    = "red",
-            linetype = "dashed",
-            size     = 2) +
+p1 + geom_smooth(method = "lm", se = FALSE, linewidth = 2) +
+geom_smooth(mapping   = aes(x = x2, y = y2),
+            method    = "lm",
+            se        = FALSE,
+            color     = "red",
+            linetype  = "dashed",
+            linewidth = 2) +
 scale_colour_manual(values = c("black", "red"))
 @
 
