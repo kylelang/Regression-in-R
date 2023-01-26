@@ -56,7 +56,7 @@ key.
 
         install.packages(c("MLmetrics",
 		                   "dplyr",
-						   "magrittr",
+		                   "magrittr",
                            "wec",
                            "psychTools",
                            "DAAG",
