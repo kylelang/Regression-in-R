@@ -61,7 +61,7 @@ plot(out1, which = 5)
 ## Panel of partial residual plots:
 crPlots(out1)
 
-## Invidual partial residual plots:
+## Individual partial residual plots:
 crPlot(out1, "Horsepower")
 crPlot(out1, "MPG.city")
 crPlot(out1, "Passengers")

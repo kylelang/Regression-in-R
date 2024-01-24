@@ -8,7 +8,9 @@ rm(list = ls(all = TRUE))
 
 ###-Preliminaries------------------------------------------------------------###
 
-library(wec) # For weighted effects codes
+library(wec)      # For weighted effects codes
+library(dplyr)    # For data manipulation
+library(magrittr) # For fancy pipes
 
 ## Define some helper functions
 source("code/support/helper_functions.R")
@@ -19,7 +21,7 @@ data(iris)
 set.seed(235711)
 
 ## Sample 100 rows to unbalance group sizes:
-iris <- iris[sample(1:nrow(iris), 100), ]
+iris %<>% slice_sample(n = 100)
 
 ################################################################################
 ## PRACTICE PROBLEM 2.1
@@ -345,4 +347,3 @@ anova(out8.1, out8.2)
 
 
 ###-END----------------------------------------------------------------------###
-
