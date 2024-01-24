@@ -1,7 +1,7 @@
 %%% Title:    Regression in R 5: Moderation
 %%% Author:   Kyle M. Lang
 %%% Created:  2017-09-12
-%%% Modified: 2023-01-26
+%%% Modified: 2024-01-24
 
 \documentclass[10pt]{beamer}
 \usetheme{Utrecht}
@@ -17,7 +17,7 @@
 \subtitle{Utrecht University Winter School: Regression in R}
 \author{Kyle M. Lang}
 \institute{Department of Methodology \& Statistics\\Utrecht University}
-\date{2022-02-02}
+\date{}
 
 % Don't use any labeling for table captions
 \captionsetup{labelformat = empty}
@@ -205,29 +205,6 @@ knit_theme$set('edit-kwrite')
     \begin{align*}
       Y = \beta_0 + \beta_1X + \beta_2Z + \beta_3XZ + \varepsilon
     \end{align*}
-  \end{itemize}
-  
-\end{frame}
-
-%------------------------------------------------------------------------------%
-
-\subsection{Testing Moderation}
-
-%------------------------------------------------------------------------------%
-
-\begin{frame}{Testing Moderation}
-  Now, we have an estimable regression model that quantifies the linear 
-  moderation we hypothesized.
-  \vb
-  \begin{center}\ovalbox{$Y = \beta_0 + \beta_1X + \beta_2Z + \beta_3XZ + 
-      \varepsilon$}\end{center}
-  \vc
-  \begin{itemize}
-  \item To test for significant moderation, we simply need to test the 
-    significance of the interaction term, $XZ$.
-    \begin{itemize}
-    \item Check if $\hat{\beta}_3$ is significantly different from zero.
-    \end{itemize}
   \end{itemize}
   
 \end{frame}

@@ -1,7 +1,7 @@
 %%% Title:    Regression in R 2: Categorical Predictor Variables
 %%% Author:   Kyle M. Lang
 %%% Created:  2017-09-12
-%%% Modified: 2023-01-26
+%%% Modified: 2024-01-24
 
 \documentclass[10pt]{beamer}
 \usetheme{Utrecht}
@@ -16,7 +16,7 @@
 \subtitle{Utrecht University Winter School: Regression in R}
 \author{Kyle M. Lang}
 \institute{Department of Methodology \& Statistics\\Utrecht University}
-\date{2022-02-02}
+\date{}
 
 %------------------------------------------------------------------------------%
 
