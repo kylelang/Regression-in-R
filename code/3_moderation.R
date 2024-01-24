@@ -1,7 +1,7 @@
-### Title:    Regression in R 4: Moderation
+### Title:    Regression in R 3: Moderation
 ### Author:   Kyle M. Lang
 ### Created:  2016-04-04
-### Modified: 2023-01-26
+### Modified: 2024-01-24
 
 rm(list = ls(all = TRUE))
 
@@ -21,7 +21,7 @@ bfi  <- readRDS(paste0(dataDir, "bfi_scored.rds"))
 data(iris)
 
 ################################################################################
-## PRACTICE PROBLEM 4.1
+## PRACTICE PROBLEM 3.1
 ##
 ## a) Use the readRDS() function to load the "msq2.rds" dataset.
 ## b) Use the data() function to load the "cps3" and "leafshape" datasets from
@@ -45,7 +45,7 @@ out2 <- lm(depression ~ fatalism * simplicity, data = ginz)
 summary(out2)
 
 ################################################################################
-## PRACTICE PROBLEM 4.2
+## PRACTICE PROBLEM 3.2
 ##
 ## Use the "msq2" data to estimate the following model.
 ##
@@ -56,9 +56,9 @@ summary(out2)
 ################################################################################
 
 ################################################################################
-## PRACTICE PROBLEM 4.3
+## PRACTICE PROBLEM 3.3
 ##
-## Use the results from the model you estimated in PP 4.2 to answer the
+## Use the results from the model you estimated in PP 3.2 to answer the
 ## following questions.
 ##
 ## a) What is the value of the parameter estimate that quantifies the effect of
@@ -101,10 +101,10 @@ out2.3 <- lm(depression ~ fatalism * simpHi, data = ginz)
 summary(out2.3)
 
 ################################################################################
-## PRACTICE PROBLEM 4.4
+## PRACTICE PROBLEM 3.4
 ##
 ## a) Use the centering method to test the simple slopes of the model you
-##    estimated in PP 4.2 at Negative Affect values of 0, 10, and 20.
+##    estimated in PP 3.2 at Negative Affect values of 0, 10, and 20.
 ## b) After controlling for Positive Affect, what is the simple slope of
 ##    Energetic Arousal on Tense Arousal when Negative Affect is 0.
 ## c) Is the simple slope you estimated in (b) statistically significant at
@@ -157,10 +157,10 @@ testOut3 <- testSlopes(plotOut3)
 testOut3$hypotests
 
 ################################################################################
-## PRACTICE PROBLEM 4.5
+## PRACTICE PROBLEM 3.5
 ##
 ## a) Use the 'rockchalk' package to test the same simple slopes you estimated
-##    in PP 4.4.
+##    in PP 3.4.
 ## b) Do the results of the centering approach agree with the results from
 ##    'rockchalk'?
 ##
@@ -172,9 +172,9 @@ testOut1$jn$roots
 summary(out2)$coefficients
 
 ################################################################################
-## PRACTICE PROBLEM 4.6
+## PRACTICE PROBLEM 3.6
 ##
-## Run a Johnson-Neyman analysis on the model you estimated in PP 4.2.
+## Run a Johnson-Neyman analysis on the model you estimated in PP 3.2.
 ## - What values of Negative Affect produce significant simple slopes of
 ##   Energetic Arousal on Tense Arousal, after controlling for Positive Affect?
 ##
@@ -202,22 +202,22 @@ bfi %>%
     summary()
 
 ################################################################################
-## PRACTICE PROBLEM 4.7
+## PRACTICE PROBLEM 3.7
 ##
 ## Use the "cps3" data to estimate the following model.
 ##
 ## Estimate a model that tests if the effect of Years of Education on Real
 ## Earnings in 1975 is significantly moderated by being Hispanic, after
-## controlling for Real Earnings in 1974.
+## controlling for Real Earnings in 1973.
 ##
 ## HINT: The Hispanic variable is not a factor. You may want to change that.
 ##
 ################################################################################
 
 ################################################################################
-## PRACTICE PROBLEM 4.8
+## PRACTICE PROBLEM 3.8
 ##
-## Use the results of the model you estimated in PP 4.7 to answer the following
+## Use the results of the model you estimated in PP 3.7 to answer the following
 ## questions.
 ##
 ## b) After controlling for 1974 Earnings, does being Hispanic significantly
@@ -230,9 +230,9 @@ bfi %>%
 ################################################################################
 
 ################################################################################
-## PRACTICE PROBLEM 4.9
+## PRACTICE PROBLEM 3.9
 ##
-## Answer the following questions w.r.t. the model you estimated in PP 4.7.
+## Answer the following questions w.r.t. the model you estimated in PP 3.7.
 ##
 ## a) What is the simple slope of Years of Education on 1975 Earnings
 ##    (controlling for 1974 Earnings) for Non-Hispanic people?
@@ -246,9 +246,9 @@ bfi %>%
 ################################################################################
 
 ################################################################################
-## PRACTICE PROBLEM 4.10
+## PRACTICE PROBLEM 3.10
 ##
-## Visualize the simple slopes from PP 4.9 in an appropriate way.
+## Visualize the simple slopes from PP 3.9 in an appropriate way.
 ##
 ################################################################################
 
@@ -287,7 +287,7 @@ testOut1 <- testSlopes(plotOut1)
 testOut1$hypotests
 
 ################################################################################
-## PRACTICE PROBLEM 4.11
+## PRACTICE PROBLEM 3.11
 ##
 ## Use the "leafshape" data to answer the following questions.
 ##
@@ -297,7 +297,7 @@ testOut1$hypotests
 ################################################################################
 
 ################################################################################
-## PRACTICE PROBLEM 4.12
+## PRACTICE PROBLEM 3.12
 ##
 ## Use the "leafshape" data to estimate the following model.
 ##
@@ -307,9 +307,9 @@ testOut1$hypotests
 ################################################################################
 
 ################################################################################
-## PRACTICE PROBLEM 4.13
+## PRACTICE PROBLEM 3.13
 ##
-## Use the results of the model you estimated in PP 4.12 to answer the following
+## Use the results of the model you estimated in PP 3.12 to answer the following
 ## questions.
 ##
 ## a) Does the effect of Leaf Width on Leaf Length differ significantly
@@ -319,9 +319,9 @@ testOut1$hypotests
 ################################################################################
 
 ################################################################################
-## PRACTICE PROBLEM 4.14
+## PRACTICE PROBLEM 3.14
 ##
-## Answer the following questions w.r.t. the model you estimated in PP 4.12.
+## Answer the following questions w.r.t. the model you estimated in PP 3.12.
 ##
 ## a) What is the simple slope of Leaf Width on Leaf Length in Sabah?
 ## b) Is the simple slope you reported in (a) significant at the alpha = 0.05
@@ -334,7 +334,7 @@ testOut1$hypotests
 ##    level?
 ## g) In which Location is the effect of Leaf Width on Leaf Length strongest?
 ## h) What caveat might you want to place on the conclusion reported in (g)?
-##    - HINT: Consider your answers for PP 4.11.
+##    - HINT: Consider your answers for PP 3.11.
 ##
 ################################################################################
 

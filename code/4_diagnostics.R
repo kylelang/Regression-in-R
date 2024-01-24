@@ -1,7 +1,7 @@
-### Title:    Regression in R 5: Diagnostics
+### Title:    Regression in R 4: Diagnostics
 ### Author:   Kyle M. Lang
 ### Created:  2017-10-08
-### Modified: 2023-01-26
+### Modified: 2024-01-24
 
 rm(list = ls(all = TRUE))
 
@@ -17,7 +17,7 @@ library(lmtest)   # For hypothesis tests using robust standard errors
 data(Cars93, package = "MASS")
 
 ################################################################################
-## PRACTICE PROBLEM 5.1
+## PRACTICE PROBLEM 4.1
 ##
 ## Use the readRDS() function to load the "airQual.rds" dataset.
 ##
@@ -33,7 +33,7 @@ out1 <- lm(Price ~ Horsepower + MPG.city + Passengers, data = Cars93)
 summary(out1)
 
 ################################################################################
-## PRACTICE PROBLEM 5.2
+## PRACTICE PROBLEM 4.2
 ##
 ## Regress "Temp" onto "Ozone", "Wind", "Solar.R", and the square of "Ozone".
 ## - In the following practice problems, this model will be referred to as "M0".
@@ -67,9 +67,9 @@ crPlot(out1, "MPG.city")
 crPlot(out1, "Passengers")
 
 ################################################################################
-## PRACTICE PROBLEM 5.3
+## PRACTICE PROBLEM 4.3
 ##
-## Use the model you estimated in PP 5.2 (i.e., M0) to complete the following
+## Use the model you estimated in PP 4.2 (i.e., M0) to complete the following
 ## tasks and answer the associated questions.
 ##
 ## a) Plot the residuals from the model against its fitted values.
@@ -97,10 +97,10 @@ coeftest(out1, vcov = covHC1)
 summary(out1)$coefficients
 
 ################################################################################
-## PRACTICE PROBLEM 5.4
+## PRACTICE PROBLEM 4.4
 ##
 ## a) Estimate the heteroscedasticity consistent (HC) asymptotic covariance
-##    matrix for M0 (i.e., the model from PP 5.2).
+##    matrix for M0 (i.e., the model from PP 4.2).
 ## b) Use the HC covariance matrix from (a) to test the coefficients of M0 with
 ##    robust SEs.
 ## c) Compare the results from (b) to the default tests of M0's coefficients.
@@ -121,7 +121,7 @@ covHC1.2 <- vcovHC(out1.2)
 waldtest(out1, out1.2, vcov = covHC1.2)
 
 ################################################################################
-## PRACTICE PROBLEM 5.5
+## PRACTICE PROBLEM 4.5
 ##
 ## Update M0 by adding the squares of "Wind" and "Solar.R" and re-estimating the
 ## model.
@@ -129,9 +129,9 @@ waldtest(out1, out1.2, vcov = covHC1.2)
 ################################################################################
 
 ################################################################################
-## PRACTICE PROBLEM 5.6
+## PRACTICE PROBLEM 4.6
 ##
-## Use the models you estimated in PP 5.2 and PP 5.5 to complete the following
+## Use the models you estimated in PP 4.2 and PP 5.5 to complete the following
 ## tasks.
 ##
 ## a) Using HC estimates of the SEs, conduct a nested model comparison to test
@@ -183,9 +183,9 @@ badSr2
 
 
 ################################################################################
-## PRACTICE PROBLEM 5.7
+## PRACTICE PROBLEM 4.7
 ##
-## a) Compute the studentized residuals of M0 (i.e., the model from PP 5.2).
+## a) Compute the studentized residuals of M0 (i.e., the model from PP 4.2).
 ## b) Create an index plot of the studentized residuals computed in (a).
 ##    - What can you infer from this plot?
 ## c) What are the observation numbers for the two most probable outliers
@@ -205,7 +205,7 @@ badLev2 <- lev2 %>% sort() %>% tail(3) %>% names() %>% as.numeric()
 badLev2
 
 ################################################################################
-## PRACTICE PROBLEM 5.8
+## PRACTICE PROBLEM 4.8
 ##
 ## a) Compute the leverages of M0.
 ## b) Create an index plot of the leverages computed in (a).
@@ -240,7 +240,7 @@ plot(dfb2[ , 4])
 (maxDfbB3 <- which.max(abs(dfb2[ , 4])))
 
 ################################################################################
-## PRACTICE PROBLEM 5.9
+## PRACTICE PROBLEM 4.9
 ##
 ## a) Compute the Cook's distances for M0.
 ## b) Create an index plot of the distances computed in (a).
@@ -251,19 +251,19 @@ plot(dfb2[ , 4])
 ################################################################################
 
 ################################################################################
-## PRACTICE PROBLEM 5.10
+## PRACTICE PROBLEM 4.10
 ##
 ## a) Compute the DFFITS values for M0.
 ## b) Create an index plot of the DFFITS values computed in (a).
 ##    - What can you infer from this plot?
 ## c) What are the observation numbers for the five most influential cases
 ##    according to the DFFITS values from (a)?
-## d) Are the observations flagged in (c) the same as those flagged in PP 5.9c?
+## d) Are the observations flagged in (c) the same as those flagged in PP 4.9c?
 ##
 ################################################################################
 
 ################################################################################
-## PRACTICE PROBLEM 5.11
+## PRACTICE PROBLEM 4.11
 ##
 ## a) Compute the DFBETAS values for M0.
 ## b) Create an index plot of the DFBETAS values for the intercept.
@@ -286,9 +286,9 @@ summary(out2)
 summary(out2.2)
 
 ################################################################################
-## PRACTICE PROBLEM 5.12
+## PRACTICE PROBLEM 4.12
 ##
-## a) Remove the five most influential cases flagged in PP 5.9c, and use the
+## a) Remove the five most influential cases flagged in PP 4.9c, and use the
 ##    cleaned data to rerun M0.
 ## b) Compare the results of the model estimated in (a) to the results of the
 ##    original M0 fit to the entire dataset.
