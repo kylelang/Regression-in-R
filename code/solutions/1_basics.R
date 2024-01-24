@@ -1,7 +1,7 @@
 ### Title:    Suggested Solutions 1: Basics
 ### Author:   Kyle M. Lang
 ### Created:  2018-04-10
-### Modified: 2023-01-26
+### Modified: 2024-01-24
 
 library(MLmetrics)
 source("code/support/helper_functions.R")
@@ -147,4 +147,3 @@ names(which.min(mse))
 
 
 ###-END----------------------------------------------------------------------###
-
