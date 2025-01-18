@@ -1,7 +1,7 @@
 ### Title:    Regression in R 1: Basics
 ### Author:   Kyle M. Lang
 ### Created:  2017-09-08
-### Modified: 2023-01-25
+### Modified: 2025-01-18
 
 
 ###-Preliminaries------------------------------------------------------------###
@@ -149,6 +149,10 @@ mse4 <- MSE(y_pred = predict(out4), y_true = cars$qsec)
 mse1
 mse4
 
+## Compare information criteria:
+AIC(out1, out4)
+BIC(out1, out4)
+
 ################################################################################
 ## PRACTICE PROBLEM 1.5
 ##
@@ -164,11 +168,11 @@ mse4
 ################################################################################
 ## PRACTICE PROBLEM 1.6
 ##
-## a) What is the MSE for the model that regresses "GNP" onto "Year" and
-##    "Population"?
-## b) What is the MSE for the model that regresses "GNP" onto "Year" and
-##    "Employed"?
-## c) According to the MSE values calculated above, is "Population" or
+## a) Calculate the MSE, AIC, and BIC for the model that regresses "GNP" onto 
+##    "Year" and "Population"?
+## b) Calculate the MSE, AIC, and BIC for the model that regresses "GNP" onto
+##    "Year" and "Employed"?
+## c) According to the fit statistics calculated above, is "Population" or
 ##    "Employed" the better predictor of "GNP"?
 ## d) Could we do the comparison in (c) using an F-test for the difference in
 ##    R-squared values? Why or why not?

@@ -1,7 +1,7 @@
 ### Title:    Suggested Solutions 1: Basics
 ### Author:   Kyle M. Lang
 ### Created:  2018-04-10
-### Modified: 2024-01-24
+### Modified: 2025-01-18
 
 library(MLmetrics)
 source("code/support/helper_functions.R")
@@ -120,24 +120,23 @@ av1[2, "F"]
 
 ###--------------------------------------------------------------------------###
 
-## 1.6a) What is the MSE for the model that regresses "GNP" onto "Year" and
-##      "Population"?
+## 1.6a) Calculate the MSE, AIC, and BIC for the model that regresses "GNP"
+##       onto "Year" and "Population"?
 
-mse <- c()
-
-mse["population"] <- MSE(y_pred = predict(out2), y_true = longley$GNP)
-mse["population"]
+MSE(y_pred = predict(out2), y_true = longley$GNP)
 
 ## 1.6b) What is the MSE for the model that regresses "GNP" onto "Year" and
 ##       "Employed"?
 
-mse["employed"] <- MSE(y_pred = predict(out3), y_true = longley$GNP)
-mse["employed"]
+MSE(y_pred = predict(out3), y_true = longley$GNP)
 
-## 1.6c) According to the MSE values calculated above, is "Population" or
+AIC(out2, out3)
+BIC(out2, out3)
+
+## 1.6c) According to the fit statistics calculated above, is "Population" or
 ##       "Employed" the better predictor of "GNP"?
 
-names(which.min(mse))
+### ALL STATS AGREE THAT THE MODEL WITH "EMPLOYED" is better.
 
 ## 1.6d) Could we do the comparison in (c) using an F-test for the difference in
 ##       R-squared values? Why or why not?
