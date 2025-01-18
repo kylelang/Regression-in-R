@@ -122,8 +122,6 @@ tsOut1$hypotests
                                          )
 )
 
-### Are all differences lower than machine precision?
-all(dif < .Machine$double.eps) %>% ifelse("YES", "NO")
 
 ###--------------------------------------------------------------------------###
 

@@ -1,7 +1,7 @@
 ### Title:    Regression in R 3: Moderation
 ### Author:   Kyle M. Lang
 ### Created:  2016-04-04
-### Modified: 2024-01-24
+### Modified: 2025-01-18
 
 rm(list = ls(all = TRUE))
 
@@ -220,10 +220,10 @@ bfi %>%
 ## Use the results of the model you estimated in PP 3.7 to answer the following
 ## questions.
 ##
-## b) After controlling for 1974 Earnings, does being Hispanic significantly
+## a) After controlling for 1974 Earnings, does being Hispanic significantly
 ##    affect the relationship between Years of Education and 1975 Earnings at
 ##    the alpha = 0.05 level
-## c) After controlling for 1974 Earnings, does being Hispanic significantly
+## b) After controlling for 1974 Earnings, does being Hispanic significantly
 ##    affect the relationship between Years of Education and 1975 Earnings at
 ##    the alpha = 0.01 level?
 ##
